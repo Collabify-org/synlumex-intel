@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2, Save } from 'lucide-react';
+import { Sparkles, Loader2, Save, Upload, FileText, X } from 'lucide-react';
 import { formatMoney } from '@/lib/format';
 import type { CurrencyCode } from '@/lib/types';
 
@@ -35,17 +36,27 @@ export function BoqTab({
   initialItems: BoqRow[];
 }) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const supabase = createClient();
+
+  const [mode, setMode] = useState<'text' | 'pdf'>('text');
   const [text, setText] = useState('');
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  async function extract() {
-    setLoading(true);
-    setError(null);
+  function reset() {
     setItems([]);
+    setError(null);
+    setNotice(null);
+  }
+
+  async function extractFromText() {
+    setLoading(true);
+    reset();
     try {
       const res = await fetch('/api/ai/boq', {
         method: 'POST',
@@ -55,7 +66,7 @@ export function BoqTab({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Extraction failed');
       setItems(data.items ?? []);
-      if ((data.items ?? []).length === 0) setError('No items found in the text.');
+      if ((data.items ?? []).length === 0) setError('No items found.');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -63,19 +74,43 @@ export function BoqTab({
     }
   }
 
-  async function saveAll() {
+  async function extractFromPdf() {
+    if (!pdfFile) return;
+    setLoading(true);
+    reset();
+    try {
+      const fd = new FormData();
+      fd.append('file', pdfFile);
+      fd.append('projectId', projectId);
+      const res = await fetch('/api/ai/boq-pdf', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Extraction failed');
+      setItems(data.items ?? []);
+      if ((data.items ?? []).length === 0) setError('No BOQ items found in the PDF.');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveItems() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch('/api/ai/boq', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, projectId, save: true })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Save failed');
-      setNotice(`Saved ${items.length} items to project.`);
+      const rows = items.map((i) => ({
+        project_id: projectId,
+        description: i.description,
+        unit: i.unit,
+        quantity: i.quantity,
+        rate: i.rate,
+        source: 'ai_extracted'
+      }));
+      const { error } = await supabase.from('boq_items').insert(rows);
+      if (error) throw new Error(error.message);
+      setNotice(`Saved ${items.length} items.`);
       setText('');
+      setPdfFile(null);
       setItems([]);
       router.refresh();
     } catch (e: any) {
@@ -85,6 +120,24 @@ export function BoqTab({
     }
   }
 
+  function onFilePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!f.name.toLowerCase().endsWith('.pdf')) {
+      setError('Only PDF files accepted.');
+      return;
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      setError('File too large (max 10MB).');
+      return;
+    }
+    setPdfFile(f);
+    setError(null);
+    setNotice(null);
+  }
+
+  const canExtract = mode === 'text' ? text.trim().length >= 10 : !!pdfFile;
+
   return (
     <div className="space-y-4">
       <Card className="p-5 bg-card/50">
@@ -93,27 +146,105 @@ export function BoqTab({
           <h3 className="font-semibold">AI BOQ Extraction</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Paste a spec, RFQ, or BOQ text. AI extracts structured line items.
+          Upload a PDF spec or paste text. AI extracts structured line items.
         </p>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={5}
-          placeholder="e.g. Supply and install 500 cum of M30 grade RCC at Rs 9200 per cum..."
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
-        />
+
+        <div className="inline-flex items-center rounded-md border border-border p-0.5 mb-3">
+          <button
+            onClick={() => { setMode('text'); reset(); }}
+            className={`px-3 py-1.5 text-xs rounded ${
+              mode === 'text' ? 'bg-brand text-brand-foreground font-medium' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Paste Text
+          </button>
+          <button
+            onClick={() => { setMode('pdf'); reset(); }}
+            className={`px-3 py-1.5 text-xs rounded ${
+              mode === 'pdf' ? 'bg-brand text-brand-foreground font-medium' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Upload PDF
+          </button>
+        </div>
+
+        {mode === 'text' ? (
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={5}
+            placeholder="e.g. Supply and install 500 cum of M30 grade RCC at Rs 9200 per cum..."
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+          />
+        ) : (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const f = e.dataTransfer.files?.[0];
+              if (f) {
+                if (!f.name.toLowerCase().endsWith('.pdf')) {
+                  setError('Only PDF files accepted.');
+                  return;
+                }
+                setPdfFile(f);
+                setError(null);
+              }
+            }}
+            className="border border-dashed border-border rounded-md p-6 text-center cursor-pointer hover:border-brand/50 hover:bg-brand/5 transition-colors"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={onFilePick}
+            />
+            {pdfFile ? (
+              <div className="flex items-center justify-center gap-3">
+                <FileText className="h-6 w-6 text-brand" />
+                <div className="text-left">
+                  <div className="text-sm font-medium">{pdfFile.name}</div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {(pdfFile.size / 1024).toFixed(1)} KB
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setPdfFile(null); }}
+                  className="ml-2 text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                <div className="text-sm">Click to upload or drag PDF here</div>
+                <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+                  PDF only · max 10MB
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center gap-2 mt-3">
-          <Button onClick={extract} disabled={loading || text.trim().length < 10}>
+          <Button
+            onClick={mode === 'text' ? extractFromText : extractFromPdf}
+            disabled={loading || !canExtract}
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Extract with AI
           </Button>
           {items.length > 0 && (
-            <Button onClick={saveAll} variant="secondary" disabled={saving}>
+            <Button onClick={saveItems} variant="secondary" disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" /> Save {items.length} items
             </Button>
           )}
         </div>
+
         {error && (
           <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
             {error}

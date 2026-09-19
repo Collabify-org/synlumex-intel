@@ -34,6 +34,7 @@ export interface Profile {
   email: string;
   full_name: string;
   role: UserRole;
+  is_super_admin: boolean;
   created_at: string;
 }
 

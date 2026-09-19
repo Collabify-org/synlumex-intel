@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutGrid, FolderKanban, AlertTriangle, Banknote,
-  Sparkles, Bell, ScrollText, Settings, ShieldCheck, CreditCard
+  Sparkles, Bell, ScrollText, Settings, ShieldCheck
 } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
@@ -24,7 +24,6 @@ const NAV = {
   ],
   SYSTEM: [
     { href: '/audit', label: 'Audit Log', icon: ScrollText },
-    { href: '/account', label: 'Account', icon: CreditCard },
     { href: '/settings', label: 'Settings', icon: Settings }
   ]
 };

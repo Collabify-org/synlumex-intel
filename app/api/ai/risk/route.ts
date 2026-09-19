@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { summarizeRisk, type ProjectRiskContext } from '@/lib/ai/gemini';
+import { summarizeRisk, type ProjectRiskContext } from '@/lib/ai/provider';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';

@@ -29,7 +29,6 @@
     "lucide-react": "^0.454.0",
     "next": "14.2.15",
     "openai": "^4.70.0",
-    "pdfjs-dist": "^4.0.379",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
@@ -37,6 +36,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "unpdf": "^0.12.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {

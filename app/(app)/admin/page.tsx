@@ -182,24 +182,4 @@ export default async function AdminPage() {
                 <th className="text-left p-3 font-normal">WHEN</th>
                 <th className="text-left p-3 font-normal">FROM</th>
                 <th className="text-left p-3 font-normal">TO</th>
-                <th className="text-left p-3 font-normal">BY</th>
-                <th className="text-left p-3 font-normal">REASON</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(history ?? []).map((h: any) => (
-                <tr key={h.id} className="border-t border-border">
-                  <td className="p-3 text-xs font-mono text-muted-foreground">{timeAgo(h.created_at)}</td>
-                  <td className="p-3 text-xs font-mono">{h.old_plan_id ?? '—'}</td>
-                  <td className="p-3 text-xs font-mono text-brand-cyan">{h.new_plan_id}</td>
-                  <td className="p-3 text-xs">{(h.profiles as any)?.full_name ?? 'system'}</td>
-                  <td className="p-3 text-xs text-muted-foreground">{h.reason ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
-    </div>
-  );
-}
+                <th className="text-left p-3 font

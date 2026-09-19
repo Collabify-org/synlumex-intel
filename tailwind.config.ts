@@ -41,9 +41,11 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))'
         },
         brand: {
-          DEFAULT: '#f59e0b',
-          dim: '#b45309',
-          glow: '#fbbf24'
+          DEFAULT: '#1e40af',        // cobalt
+          bright: '#3b82f6',         // lighter cobalt
+          cyan: '#0ea5e9',           // cyan accent
+          glow: '#22d3ee',           // bright cyan
+          dim: '#1e3a8a'             // deep cobalt
         }
       },
       fontFamily: {

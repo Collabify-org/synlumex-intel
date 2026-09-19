@@ -1,5 +1,5 @@
 // ============================================================
-// Unified AI Provider — Waterfall Fallback (All Free Tiers)
+// Unified AI Provider — Waterfall Fallback
 // Order: Groq → Cerebras → SambaNova → Gemini
 // ============================================================
 
@@ -9,7 +9,7 @@ type Provider = {
   name: string;
   baseURL: string;
   apiKey: string | undefined;
-  model: string;
+  models: string[];
 };
 
 const PROVIDERS: Provider[] = [
@@ -17,57 +17,102 @@ const PROVIDERS: Provider[] = [
     name: 'groq',
     baseURL: 'https://api.groq.com/openai/v1',
     apiKey: process.env.GROQ_API_KEY,
-    model: 'llama-3.3-70b-versatile'
+    models: [
+      'llama-3.1-8b-instant',
+      'llama-3.3-70b-versatile',
+      'llama-3.1-70b-versatile',
+      'mixtral-8x7b-32768'
+    ]
   },
   {
     name: 'cerebras',
     baseURL: 'https://api.cerebras.ai/v1',
     apiKey: process.env.CEREBRAS_API_KEY,
-    model: 'llama3.3-70b'
+    models: ['llama3.1-8b', 'llama3.3-70b', 'llama-3.3-70b']
   },
   {
     name: 'sambanova',
     baseURL: 'https://api.sambanova.ai/v1',
     apiKey: process.env.SAMBANOVA_API_KEY,
-    model: 'Meta-Llama-3.3-70B-Instruct'
+    models: ['Meta-Llama-3.1-8B-Instruct', 'Meta-Llama-3.3-70B-Instruct']
   }
 ];
+
+function isRetryable(status: number | undefined, message: string): boolean {
+  if (
+    status === 400 ||
+    status === 401 ||
+    status === 403 ||
+    status === 404 ||
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  ) {
+    return true;
+  }
+  const m = message.toLowerCase();
+  if (
+    m.includes('does not exist') ||
+    m.includes('not found') ||
+    m.includes('no access') ||
+    m.includes('decommissioned') ||
+    m.includes('deprecated')
+  ) {
+    return true;
+  }
+  return false;
+}
 
 async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<string> {
   let lastError: any = null;
 
   for (const p of PROVIDERS) {
     if (!p.apiKey) continue;
-    try {
-      const client = new OpenAI({ apiKey: p.apiKey, baseURL: p.baseURL });
-      const res = await client.chat.completions.create({
-        model: p.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.2,
-        max_tokens: 4096,
-        ...(jsonMode ? { response_format: { type: 'json_object' } } : {})
-      });
-      const content = res.choices?.[0]?.message?.content;
-      if (content) return content;
-      lastError = new Error(`${p.name} returned empty`);
-    } catch (e: any) {
-      lastError = e;
-      const status = e?.status ?? e?.response?.status;
-      if (status === 429 || status === 401 || status === 403 || status === 500 || status === 503) {
-        console.warn(`[AI] ${p.name} failed (${status}), trying next provider`);
-        continue;
+
+    const client = new OpenAI({ apiKey: p.apiKey, baseURL: p.baseURL });
+
+    for (const model of p.models) {
+      try {
+        const res = await client.chat.completions.create({
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.2,
+          max_tokens: 4096,
+          ...(jsonMode ? { response_format: { type: 'json_object' } } : {})
+        });
+        const content = res.choices?.[0]?.message?.content;
+        if (content) {
+          console.log(`[AI] ${p.name} / ${model} succeeded`);
+          return content;
+        }
+        lastError = new Error(`${p.name}/${model} empty`);
+      } catch (e: any) {
+        const status = e?.status ?? e?.response?.status;
+        const msg = String(e?.message ?? '');
+        lastError = e;
+        if (isRetryable(status, msg)) {
+          console.warn(`[AI] ${p.name}/${model} failed (${status}): ${msg.slice(0, 100)}`);
+          continue;
+        }
+        throw e;
       }
-      throw e;
     }
   }
-  throw lastError ?? new Error('All AI providers failed or none configured');
+  throw lastError ?? new Error('All AI providers failed');
 }
 
 async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not configured');
 
-  const models = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest'];
+  const models = [
+    'gemini-3.6-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-latest'
+  ];
   let lastError: any = null;
 
   for (const model of models) {
@@ -89,21 +134,22 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
       );
       if (!res.ok) {
         const t = await res.text();
-        if (t.includes('NOT_FOUND') || t.includes('no longer available') || t.includes('not found for API version')) {
-          lastError = new Error(`${model} unavailable`);
+        lastError = new Error(`Gemini ${model} (${res.status}): ${t.slice(0, 200)}`);
+        if (res.status === 404 || res.status === 400 || t.includes('NOT_FOUND') || t.includes('no longer available')) {
           continue;
         }
-        throw new Error(`Gemini error ${res.status}: ${t.slice(0, 300)}`);
+        continue;
       }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) return text;
-      lastError = new Error(`${model} empty response`);
+      if (text) {
+        console.log(`[AI] gemini / ${model} succeeded`);
+        return text;
+      }
+      lastError = new Error(`Gemini ${model} empty`);
     } catch (e: any) {
       lastError = e;
-      const msg = String(e?.message ?? '');
-      if (msg.includes('NOT_FOUND') || msg.includes('no longer available')) continue;
-      throw e;
+      console.warn(`[AI] gemini/${model} exception: ${e.message?.slice(0, 100)}`);
     }
   }
   throw lastError ?? new Error('All Gemini models failed');
@@ -112,8 +158,8 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
 async function callAI(prompt: string, jsonMode = true): Promise<string> {
   try {
     return await callOpenAICompatible(prompt, jsonMode);
-  } catch (e) {
-    console.warn('[AI] OpenAI-compatible providers failed, falling back to Gemini');
+  } catch (e: any) {
+    console.warn(`[AI] All OpenAI-compatible providers failed: ${e?.message}. Trying Gemini.`);
     return await callGemini(prompt, jsonMode);
   }
 }
@@ -148,6 +194,7 @@ Rules:
 - Each item: { "description": string, "unit": string|null, "quantity": number, "rate": number }
 - If rate is missing, estimate a realistic market rate in INR.
 - Max 30 items.
+- Normalize descriptions concisely (max 80 chars).
 
 Text:
 """

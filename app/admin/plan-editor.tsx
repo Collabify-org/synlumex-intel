@@ -115,10 +115,15 @@ export function PlanEditor({ plans }: { plans: Plan[] }) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Name</Label>
-                    <Input value={form.name ?? ''} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                    <Input
+                      value={form.name ?? ''}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
                   </div>
                   <div>
-                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Description</Label>
+                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Description
+                    </Label>
                     <Input
                       value={form.description ?? ''}
                       onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -152,7 +157,10 @@ export function PlanEditor({ plans }: { plans: Plan[] }) {
                       type="number"
                       value={form.max_projects ?? ''}
                       onChange={(e) =>
-                        setForm({ ...form, max_projects: e.target.value === '' ? null : Number(e.target.value) })
+                        setForm({
+                          ...form,
+                          max_projects: e.target.value === '' ? null : Number(e.target.value)
+                        })
                       }
                     />
                   </div>
@@ -164,7 +172,10 @@ export function PlanEditor({ plans }: { plans: Plan[] }) {
                       type="number"
                       value={form.max_users ?? ''}
                       onChange={(e) =>
-                        setForm({ ...form, max_users: e.target.value === '' ? null : Number(e.target.value) })
+                        setForm({
+                          ...form,
+                          max_users: e.target.value === '' ? null : Number(e.target.value)
+                        })
                       }
                     />
                   </div>
@@ -178,7 +189,8 @@ export function PlanEditor({ plans }: { plans: Plan[] }) {
                       onChange={(e) =>
                         setForm({
                           ...form,
-                          max_ai_extractions_monthly: e.target.value === '' ? null : Number(e.target.value)
+                          max_ai_extractions_monthly:
+                            e.target.value === '' ? null : Number(e.target.value)
                         })
                       }
                     />
@@ -189,7 +201,11 @@ export function PlanEditor({ plans }: { plans: Plan[] }) {
                     Cancel
                   </Button>
                   <Button size="sm" onClick={save} disabled={loading} className="brand-gradient">
-                    {loading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Save className="mr-2 h-3 w-3" />}
+                    {loading ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Save className="mr-2 h-3 w-3" />
+                    )}
                     Save
                   </Button>
                 </div>

@@ -20,17 +20,7 @@ export default async function AdminPage() {
     .eq('id', user.id)
     .single();
 
-  if (!profile?.is_super_admin) {
-    return (
-      <div className="p-6 max-w-2xl mx-auto text-center py-24">
-        <ShieldCheck className="h-12 w-12 text-destructive mx-auto mb-4" />
-        <h1 className="text-xl font-semibold mb-2">Super Admin Access Required</h1>
-        <p className="text-sm text-muted-foreground">
-          Your account doesn&apos;t have admin privileges.
-        </p>
-      </div>
-    );
-  }
+  if (!profile?.is_super_admin) redirect('/dashboard');
 
   const { data: subscription } = await supabase
     .from('subscriptions')

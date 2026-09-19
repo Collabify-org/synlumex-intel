@@ -17,22 +17,26 @@ export async function POST(req: Request) {
       .select('*')
       .eq('id', projectId)
       .single();
-
     if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
 
-    const { data: billings } = await supabase.from('billing').select('amount, status').eq('project_id', projectId);
-    const { data: collections } = await supabase.from('collections').select('amount').eq('project_id', projectId);
+    const { data: billings } = await supabase
+      .from('billing').select('amount, status').eq('project_id', projectId);
+    const { data: collections } = await supabase
+      .from('collections').select('amount').eq('project_id', projectId);
     const { data: exceptions } = await supabase
-      .from('exceptions')
-      .select('severity, message')
-      .eq('project_id', projectId)
-      .eq('status', 'open');
+      .from('exceptions').select('severity, message').eq('project_id', projectId).eq('status', 'open');
+    const { data: boqItems } = await supabase
+      .from('boq_items').select('quantity, rate').eq('project_id', projectId);
 
     const billed = (billings ?? []).reduce((s, b) => s + Number(b.amount), 0);
     const collected = (collections ?? []).reduce((s, c) => s + Number(c.amount), 0);
     const overdue = (billings ?? [])
       .filter((b) => b.status === 'overdue')
       .reduce((s, b) => s + Number(b.amount), 0);
+    const boqTotal = (boqItems ?? []).reduce(
+      (s, b) => s + Number(b.quantity) * Number(b.rate),
+      0
+    );
 
     const daysToEnd = project.end_date
       ? Math.floor((new Date(project.end_date).getTime() - Date.now()) / 86400000)
@@ -45,6 +49,8 @@ export async function POST(req: Request) {
       health: project.health,
       currency: project.currency,
       contractValue: Number(project.contract_value),
+      boqTotal,
+      boqItemCount: (boqItems ?? []).length,
       billed,
       collected,
       overdue,

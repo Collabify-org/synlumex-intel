@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { extractBOQ } from '@/lib/ai/gemini';
+import { extractBOQ } from '@/lib/ai/provider';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';

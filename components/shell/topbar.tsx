@@ -86,14 +86,17 @@ export function Topbar({ profile }: Props) {
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border bg-popover shadow-2xl overflow-hidden z-[100]">
-              <div className="p-4 border-b border-border">
+            <div
+              className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border overflow-hidden z-[100] shadow-2xl"
+              style={{ backgroundColor: '#0d1424' }}
+            >
+              <div className="p-4 border-b border-border" style={{ backgroundColor: '#0d1424' }}>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full brand-gradient flex items-center justify-center text-sm font-bold text-white">
                     {initial}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold truncate">
+                    <div className="text-sm font-semibold truncate text-foreground">
                       {profile?.full_name ?? 'User'}
                     </div>
                     <div className="text-[10px] font-mono text-muted-foreground truncate">
@@ -106,11 +109,11 @@ export function Topbar({ profile }: Props) {
                 </div>
               </div>
 
-              <div className="py-1">
+              <div className="py-1" style={{ backgroundColor: '#0d1424' }}>
                 <Link
                   href="/settings"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors text-foreground"
                 >
                   <User className="h-4 w-4 text-muted-foreground" />
                   Profile
@@ -118,7 +121,7 @@ export function Topbar({ profile }: Props) {
                 <Link
                   href="/account"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors text-foreground"
                 >
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                   Billing & Plan
@@ -126,14 +129,14 @@ export function Topbar({ profile }: Props) {
                 <Link
                   href="/settings"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-accent/60 transition-colors text-foreground"
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   Settings
                 </Link>
               </div>
 
-              <div className="py-1 border-t border-border">
+              <div className="py-1 border-t border-border" style={{ backgroundColor: '#0d1424' }}>
                 <button
                   onClick={signOut}
                   className="flex items-center gap-3 px-4 py-2 text-sm w-full text-left hover:bg-destructive/10 text-destructive transition-colors"

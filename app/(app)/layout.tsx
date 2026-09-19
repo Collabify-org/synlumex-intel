@@ -16,11 +16,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .single();
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="h-screen w-screen overflow-hidden flex bg-background">
       <Sidebar profile={profile} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
         <Topbar profile={profile} />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto min-h-0">
+          {children}
+        </main>
       </div>
     </div>
   );

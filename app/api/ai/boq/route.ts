@@ -15,8 +15,17 @@ export async function POST(req: Request) {
 
     const items = await extractBOQ(text);
 
+    const supabase = await createClient();
+
+    // Track usage
+    try {
+      await supabase.from('usage_events').insert({
+        event_type: 'ai_boq',
+        metadata: { items: items.length, text_length: text.length }
+      });
+    } catch {}
+
     if (save && projectId) {
-      const supabase = await createClient();
       const rows = items.map((i) => ({
         project_id: projectId,
         description: i.description,

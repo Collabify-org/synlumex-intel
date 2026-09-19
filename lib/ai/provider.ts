@@ -1,6 +1,6 @@
 // ============================================================
-// Unified AI Provider — Waterfall Fallback
-// Order: Groq → Cerebras → SambaNova → Gemini
+// Unified AI Provider — Multi-Provider Waterfall Fallback
+// Order: Groq → Cerebras → OpenRouter → SambaNova → Gemini
 // ============================================================
 
 import OpenAI from 'openai';
@@ -30,6 +30,17 @@ const PROVIDERS: Provider[] = [
     models: ['llama3.1-8b', 'llama3.3-70b']
   },
   {
+    name: 'openrouter',
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+    models: [
+      'meta-llama/llama-3.3-70b-instruct:free',
+      'google/gemini-2.0-flash-exp:free',
+      'meta-llama/llama-3.1-8b-instruct:free',
+      'qwen/qwen-2.5-72b-instruct:free'
+    ]
+  },
+  {
     name: 'sambanova',
     baseURL: 'https://api.sambanova.ai/v1',
     apiKey: process.env.SAMBANOVA_API_KEY,
@@ -38,7 +49,7 @@ const PROVIDERS: Provider[] = [
 ];
 
 function isRetryable(status: number | undefined, message: string): boolean {
-  if ([400, 401, 403, 404, 422, 429, 500, 502, 503, 504].includes(status ?? 0)) return true;
+  if ([400, 401, 402, 403, 404, 408, 422, 429, 500, 502, 503, 504].includes(status ?? 0)) return true;
   const m = message.toLowerCase();
   return (
     m.includes('does not exist') ||
@@ -46,15 +57,22 @@ function isRetryable(status: number | undefined, message: string): boolean {
     m.includes('no access') ||
     m.includes('decommissioned') ||
     m.includes('deprecated') ||
-    m.includes('rate limit')
+    m.includes('rate limit') ||
+    m.includes('quota') ||
+    m.includes('unavailable') ||
+    m.includes('overloaded')
   );
 }
 
 async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<string> {
   let lastError: any = null;
+  let anyAttempted = false;
+
   for (const p of PROVIDERS) {
     if (!p.apiKey) continue;
+    anyAttempted = true;
     const client = new OpenAI({ apiKey: p.apiKey, baseURL: p.baseURL });
+
     for (const model of p.models) {
       try {
         const res = await client.chat.completions.create({
@@ -66,7 +84,7 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         });
         const content = res.choices?.[0]?.message?.content;
         if (content) {
-          console.log(`[AI] ${p.name}/${model} ok`);
+          console.log(`[AI] ${p.name}/${model} ✓`);
           return content;
         }
         lastError = new Error(`${p.name}/${model} empty`);
@@ -74,10 +92,17 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         const status = e?.status ?? e?.response?.status;
         const msg = String(e?.message ?? '');
         lastError = e;
-        if (isRetryable(status, msg)) continue;
+        if (isRetryable(status, msg)) {
+          console.warn(`[AI] ${p.name}/${model} ✗ (${status}): ${msg.slice(0, 120)}`);
+          continue;
+        }
         throw e;
       }
     }
+  }
+
+  if (!anyAttempted) {
+    throw new Error('No AI providers configured. Set GROQ_API_KEY, CEREBRAS_API_KEY, OPENROUTER_API_KEY, or GEMINI_API_KEY.');
   }
   throw lastError ?? new Error('All AI providers failed');
 }
@@ -86,7 +111,14 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not configured');
 
-  const models = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-2.5-flash'];
+  // Stable aliases first (Google rotates them automatically) then known current models
+  const models = [
+    'gemini-flash-latest',
+    'gemini-2.5-flash-latest',
+    'gemini-2.0-flash-001',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-002'
+  ];
   let lastError: any = null;
 
   for (const model of models) {
@@ -108,18 +140,20 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
       );
       if (!res.ok) {
         const t = await res.text();
-        lastError = new Error(`Gemini ${model} ${res.status}: ${t.slice(0, 200)}`);
+        lastError = new Error(`Gemini ${model} (${res.status}): ${t.slice(0, 200)}`);
+        console.warn(`[AI] gemini/${model} ✗ (${res.status})`);
         continue;
       }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) {
-        console.log(`[AI] gemini/${model} ok`);
+        console.log(`[AI] gemini/${model} ✓`);
         return text;
       }
       lastError = new Error(`Gemini ${model} empty`);
     } catch (e: any) {
       lastError = e;
+      console.warn(`[AI] gemini/${model} ✗ ${e.message?.slice(0, 100)}`);
     }
   }
   throw lastError ?? new Error('All Gemini models failed');
@@ -129,7 +163,7 @@ async function callAI(prompt: string, jsonMode = true): Promise<string> {
   try {
     return await callOpenAICompatible(prompt, jsonMode);
   } catch (e: any) {
-    console.warn(`[AI] falling to Gemini: ${e?.message}`);
+    console.warn(`[AI] OpenAI-compatible failed: ${e?.message}. Falling to Gemini.`);
     return await callGemini(prompt, jsonMode);
   }
 }

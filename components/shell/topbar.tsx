@@ -50,7 +50,7 @@ export function Topbar({ profile }: Props) {
   const initial = profile?.full_name?.charAt(0)?.toUpperCase() ?? 'U';
 
   return (
-    <header className="h-14 shrink-0 border-b border-border bg-card/30 flex items-center px-6 gap-4">
+    <header className="h-14 shrink-0 border-b border-border bg-card/30 flex items-center px-6 gap-4 relative z-50">
       <button className="flex items-center gap-2 rounded-md border border-border bg-background/50 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-brand-cyan/40 transition-colors min-w-[280px]">
         <Search className="h-3.5 w-3.5" />
         <span>Search…</span>
@@ -86,7 +86,7 @@ export function Topbar({ profile }: Props) {
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border bg-popover shadow-2xl overflow-hidden z-50">
+            <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border bg-popover shadow-2xl overflow-hidden z-[100]">
               <div className="p-4 border-b border-border">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full brand-gradient flex items-center justify-center text-sm font-bold text-white">

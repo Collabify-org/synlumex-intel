@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutGrid, FolderKanban, AlertTriangle, Banknote,
-  Sparkles, Bell, ScrollText, Settings, ShieldCheck
+  Sparkles, Bell, ScrollText, Settings, ShieldCheck, Crown
 } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
-type Props = { profile: Profile | null };
+type Props = { profile: (Profile & { is_super_admin?: boolean }) | null };
 
-const NAV = {
+const BASE_NAV = {
   OPERATIONS: [
     { href: '/dashboard', label: 'Command Center', icon: LayoutGrid },
     { href: '/projects', label: 'Projects', icon: FolderKanban },
@@ -31,6 +31,11 @@ const NAV = {
 export function Sidebar({ profile }: Props) {
   const path = usePathname();
 
+  const nav: Record<string, { href: string; label: string; icon: any }[]> = { ...BASE_NAV };
+  if (profile?.is_super_admin) {
+    nav.ADMIN = [{ href: '/admin', label: 'Admin Panel', icon: Crown }];
+  }
+
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col h-screen">
       <div className="h-14 flex items-center gap-2 px-4 border-b border-border">
@@ -44,7 +49,7 @@ export function Sidebar({ profile }: Props) {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 px-3">
-        {Object.entries(NAV).map(([section, items]) => (
+        {Object.entries(nav).map(([section, items]) => (
           <div key={section} className="mb-6">
             <div className="px-3 mb-2 text-[10px] font-mono tracking-widest text-muted-foreground/70">
               {section}

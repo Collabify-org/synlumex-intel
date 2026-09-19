@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutGrid, FolderKanban, AlertTriangle, Banknote,
-  Sparkles, Bell, ScrollText, Settings, ShieldCheck
+  Sparkles, Bell, ScrollText, Settings, ShieldCheck, CreditCard
 } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
@@ -24,6 +24,7 @@ const NAV = {
   ],
   SYSTEM: [
     { href: '/audit', label: 'Audit Log', icon: ScrollText },
+    { href: '/account', label: 'Account', icon: CreditCard },
     { href: '/settings', label: 'Settings', icon: Settings }
   ]
 };
@@ -33,11 +34,8 @@ export function Sidebar({ profile }: Props) {
 
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col h-screen">
-      {/* Brand */}
       <div className="h-14 flex items-center gap-2 px-4 border-b border-border">
-        <div
-          className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow"
-        >
+        <div className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow">
           <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
         </div>
         <div className="flex flex-col leading-none">
@@ -46,7 +44,6 @@ export function Sidebar({ profile }: Props) {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         {Object.entries(NAV).map(([section, items]) => (
           <div key={section} className="mb-6">
@@ -79,7 +76,6 @@ export function Sidebar({ profile }: Props) {
         ))}
       </nav>
 
-      {/* Profile */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3 px-2">
           <div className="h-8 w-8 rounded-full brand-gradient flex items-center justify-center text-xs font-bold text-white">

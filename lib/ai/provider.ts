@@ -1,6 +1,6 @@
 // ============================================================
 // Unified AI Provider — Multi-Provider Waterfall Fallback
-// Order: Groq → Cerebras → OpenRouter → SambaNova → Gemini
+// Order: Groq → Cerebras → OpenRouter → Gemini
 // ============================================================
 
 import OpenAI from 'openai';
@@ -18,16 +18,17 @@ const PROVIDERS: Provider[] = [
     baseURL: 'https://api.groq.com/openai/v1',
     apiKey: process.env.GROQ_API_KEY,
     models: [
-      'llama-3.1-8b-instant',
-      'llama-3.3-70b-versatile',
-      'llama-3.1-70b-versatile'
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'groq/compound-mini',
+      'groq/compound'
     ]
   },
   {
     name: 'cerebras',
     baseURL: 'https://api.cerebras.ai/v1',
     apiKey: process.env.CEREBRAS_API_KEY,
-    models: ['llama3.1-8b', 'llama3.3-70b']
+    models: ['llama-3.3-70b', 'llama3.1-8b', 'qwen-3-32b']
   },
   {
     name: 'openrouter',
@@ -39,12 +40,6 @@ const PROVIDERS: Provider[] = [
       'meta-llama/llama-3.1-8b-instruct:free',
       'qwen/qwen-2.5-72b-instruct:free'
     ]
-  },
-  {
-    name: 'sambanova',
-    baseURL: 'https://api.sambanova.ai/v1',
-    apiKey: process.env.SAMBANOVA_API_KEY,
-    models: ['Meta-Llama-3.1-8B-Instruct', 'Meta-Llama-3.3-70B-Instruct']
   }
 ];
 
@@ -84,7 +79,7 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         });
         const content = res.choices?.[0]?.message?.content;
         if (content) {
-          console.log(`[AI] ${p.name}/${model} ✓`);
+          console.log(`[AI] ${p.name}/${model} OK`);
           return content;
         }
         lastError = new Error(`${p.name}/${model} empty`);
@@ -93,7 +88,7 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         const msg = String(e?.message ?? '');
         lastError = e;
         if (isRetryable(status, msg)) {
-          console.warn(`[AI] ${p.name}/${model} ✗ (${status}): ${msg.slice(0, 120)}`);
+          console.warn(`[AI] ${p.name}/${model} FAIL (${status}): ${msg.slice(0, 120)}`);
           continue;
         }
         throw e;
@@ -111,13 +106,11 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not configured');
 
-  // Stable aliases first (Google rotates them automatically) then known current models
   const models = [
     'gemini-flash-latest',
-    'gemini-2.5-flash-latest',
-    'gemini-2.0-flash-001',
     'gemini-2.0-flash',
-    'gemini-1.5-flash-002'
+    'gemini-2.0-flash-001',
+    'gemini-2.5-flash'
   ];
   let lastError: any = null;
 
@@ -141,19 +134,19 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
       if (!res.ok) {
         const t = await res.text();
         lastError = new Error(`Gemini ${model} (${res.status}): ${t.slice(0, 200)}`);
-        console.warn(`[AI] gemini/${model} ✗ (${res.status})`);
+        console.warn(`[AI] gemini/${model} FAIL (${res.status})`);
         continue;
       }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) {
-        console.log(`[AI] gemini/${model} ✓`);
+        console.log(`[AI] gemini/${model} OK`);
         return text;
       }
       lastError = new Error(`Gemini ${model} empty`);
     } catch (e: any) {
       lastError = e;
-      console.warn(`[AI] gemini/${model} ✗ ${e.message?.slice(0, 100)}`);
+      console.warn(`[AI] gemini/${model} FAIL ${e.message?.slice(0, 100)}`);
     }
   }
   throw lastError ?? new Error('All Gemini models failed');

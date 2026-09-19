@@ -32,17 +32,21 @@ export function Sidebar({ profile }: Props) {
   const path = usePathname();
 
   return (
-    <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col">
+    <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col h-screen">
+      {/* Brand */}
       <div className="h-14 flex items-center gap-2 px-4 border-b border-border">
-        <div className="h-8 w-8 rounded-lg bg-brand/10 border border-brand/30 flex items-center justify-center">
-          <ShieldCheck className="h-4 w-4 text-brand" />
+        <div
+          className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow"
+        >
+          <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
         </div>
         <div className="flex flex-col leading-none">
-          <span className="text-sm font-bold">SYNLUMEX</span>
+          <span className="text-sm font-bold tracking-tight">SYNLUMEX</span>
           <span className="text-[10px] font-mono text-muted-foreground tracking-widest">INTEL</span>
         </div>
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         {Object.entries(NAV).map(([section, items]) => (
           <div key={section} className="mb-6">
@@ -57,13 +61,16 @@ export function Sidebar({ profile }: Props) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all relative',
                     active
-                      ? 'bg-accent text-foreground'
-                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                      ? 'bg-brand/10 text-foreground'
+                      : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground'
                   )}
                 >
-                  <Icon className={cn('h-4 w-4', active && 'text-brand')} />
+                  {active && (
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r brand-gradient" />
+                  )}
+                  <Icon className={cn('h-4 w-4', active && 'text-brand-cyan')} />
                   {item.label}
                 </Link>
               );
@@ -72,9 +79,10 @@ export function Sidebar({ profile }: Props) {
         ))}
       </nav>
 
+      {/* Profile */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3 px-2">
-          <div className="h-8 w-8 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center text-xs font-bold text-brand">
+          <div className="h-8 w-8 rounded-full brand-gradient flex items-center justify-center text-xs font-bold text-white">
             {profile?.full_name?.charAt(0) ?? 'U'}
           </div>
           <div className="min-w-0 flex-1">

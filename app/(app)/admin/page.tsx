@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatMoney, shortDate, timeAgo } from '@/lib/format';
+import { shortDate, timeAgo } from '@/lib/format';
 import { ShieldCheck, Users, CreditCard, History } from 'lucide-react';
 import { AdminActions } from './admin-actions';
 import { PlanEditor } from './plan-editor';
@@ -76,19 +76,27 @@ export default async function AdminPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card className="p-4 bg-card/50">
-          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">Projects</div>
+          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
+            Projects
+          </div>
           <div className="text-2xl font-semibold">{projectCount ?? 0}</div>
         </Card>
         <Card className="p-4 bg-card/50">
-          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">Users</div>
+          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
+            Users
+          </div>
           <div className="text-2xl font-semibold">{users?.length ?? 0}</div>
         </Card>
         <Card className="p-4 bg-card/50">
-          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">Usage Events</div>
+          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
+            Usage Events
+          </div>
           <div className="text-2xl font-semibold">{usageCount ?? 0}</div>
         </Card>
         <Card className="p-4 bg-card/50">
-          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">Plans</div>
+          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
+            Plans
+          </div>
           <div className="text-2xl font-semibold">{plans?.length ?? 0}</div>
         </Card>
       </div>
@@ -98,13 +106,19 @@ export default async function AdminPage() {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold">Current Subscription</h2>
-              <Badge variant={subscription?.status === 'active' ? 'green' : 'amber'} className="capitalize">
+              <Badge
+                variant={subscription?.status === 'active' ? 'green' : 'amber'}
+                className="capitalize"
+              >
                 {subscription?.status}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Plan: <span className="text-foreground font-mono">{(subscription as any)?.plans?.name}</span> ·
-              Period ends {shortDate((subscription as any)?.current_period_end)} ·
+              Plan:{' '}
+              <span className="text-foreground font-mono">
+                {(subscription as any)?.plans?.name}
+              </span>{' '}
+              · Period ends {shortDate((subscription as any)?.current_period_end)} ·
               Trial ends {shortDate((subscription as any)?.trial_ends_at)}
             </p>
           </div>
@@ -146,13 +160,18 @@ export default async function AdminPage() {
                 <td className="p-3">{u.full_name}</td>
                 <td className="p-3 font-mono text-xs text-muted-foreground">{u.email}</td>
                 <td className="p-3">
-                  <Badge variant={u.role === 'owner' ? 'green' : 'secondary'} className="capitalize text-[10px]">
+                  <Badge
+                    variant={u.role === 'owner' ? 'green' : 'secondary'}
+                    className="capitalize text-[10px]"
+                  >
                     {u.role}
                   </Badge>
                 </td>
                 <td className="p-3">
                   {u.is_super_admin ? (
-                    <Badge variant="red" className="text-[10px]">SUPER ADMIN</Badge>
+                    <Badge variant="red" className="text-[10px]">
+                      SUPER ADMIN
+                    </Badge>
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
@@ -182,4 +201,32 @@ export default async function AdminPage() {
                 <th className="text-left p-3 font-normal">WHEN</th>
                 <th className="text-left p-3 font-normal">FROM</th>
                 <th className="text-left p-3 font-normal">TO</th>
-                <th className="text-left p-3 font
+                <th className="text-left p-3 font-normal">BY</th>
+                <th className="text-left p-3 font-normal">REASON</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(history ?? []).map((h: any) => (
+                <tr key={h.id} className="border-t border-border">
+                  <td className="p-3 text-xs font-mono text-muted-foreground">
+                    {timeAgo(h.created_at)}
+                  </td>
+                  <td className="p-3 text-xs font-mono">{h.old_plan_id ?? '—'}</td>
+                  <td className="p-3 text-xs font-mono text-brand-cyan">
+                    {h.new_plan_id}
+                  </td>
+                  <td className="p-3 text-xs">
+                    {(h.profiles as any)?.full_name ?? 'system'}
+                  </td>
+                  <td className="p-3 text-xs text-muted-foreground">
+                    {h.reason ?? '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
+    </div>
+  );
+}

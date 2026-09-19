@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { STAGES, type HealthStatus } from '@/lib/types';
 import { formatMoney, shortDate } from '@/lib/format';
 import { ArrowLeft } from 'lucide-react';
+import { BoqTab } from './boq-tab';
+import { RiskPanel } from './risk-panel';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +34,8 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const { data: collections } = await supabase.from('collections').select('*').eq('project_id', params.id);
   const { data: exceptions } = await supabase
     .from('exceptions').select('*').eq('project_id', params.id).eq('status', 'open');
+  const { data: boqItems } = await supabase
+    .from('boq_items').select('*').eq('project_id', params.id).order('created_at', { ascending: false });
 
   const totalBilled = (billings ?? []).reduce((s, b) => s + Number(b.amount), 0);
   const totalCollected = (collections ?? []).reduce((s, c) => s + Number(c.amount), 0);
@@ -85,15 +89,11 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               <div key={s.key} className="flex items-center shrink-0">
                 <div
                   className={`h-10 min-w-[68px] rounded-md px-2 flex items-center justify-center text-[10px] font-mono transition-colors ${
-                    active
-                      ? 'bg-brand text-brand-foreground'
-                      : status === 'done'
-                        ? 'bg-emerald-500/15 text-emerald-400'
-                        : status === 'blocked'
-                          ? 'bg-red-500/15 text-red-400'
-                          : status === 'in_progress'
-                            ? 'bg-blue-500/15 text-blue-400'
-                            : 'bg-muted text-muted-foreground'
+                    active ? 'bg-brand text-brand-foreground'
+                      : status === 'done' ? 'bg-emerald-500/15 text-emerald-400'
+                      : status === 'blocked' ? 'bg-red-500/15 text-red-400'
+                      : status === 'in_progress' ? 'bg-blue-500/15 text-blue-400'
+                      : 'bg-muted text-muted-foreground'
                   }`}
                 >
                   <span className="font-semibold">{s.short}</span>
@@ -105,7 +105,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <Card className="p-5 bg-card/50">
           <h3 className="font-semibold mb-3">Description</h3>
           <p className="text-sm text-muted-foreground">{project.description ?? '—'}</p>
@@ -148,6 +148,17 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             </div>
           )}
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="lg:col-span-2">
+          <BoqTab
+            projectId={project.id}
+            currency={project.currency}
+            initialItems={(boqItems ?? []) as any}
+          />
+        </div>
+        <RiskPanel projectId={project.id} />
       </div>
     </div>
   );

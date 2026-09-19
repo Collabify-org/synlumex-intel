@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { extractBOQ } from '@/lib/ai/provider';
+import { createClient } from '@/lib/supabase/server';
 import { extractText, getDocumentProxy } from 'unpdf';
 
 export const runtime = 'nodejs';
@@ -9,6 +10,7 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
+    const projectId = formData.get('projectId') as string | null;
 
     if (!file) return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     if (file.size > 10 * 1024 * 1024)
@@ -36,6 +38,29 @@ export async function POST(req: Request) {
     }
 
     const items = await extractBOQ(text);
+
+    const supabase = await createClient();
+
+    // Track usage
+    try {
+      await supabase.from('usage_events').insert({
+        event_type: 'ai_boq',
+        metadata: { items: items.length, source: 'pdf', file_size: file.size }
+      });
+    } catch {}
+
+    if (projectId && items.length > 0) {
+      const rows = items.map((i) => ({
+        project_id: projectId,
+        description: i.description,
+        unit: i.unit,
+        quantity: i.quantity,
+        rate: i.rate,
+        source: 'ai_extracted'
+      }));
+      const { error } = await supabase.from('boq_items').insert(rows);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({
       items,

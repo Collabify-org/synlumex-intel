@@ -3,8 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  CreditCard, Check, Sparkles, TrendingUp, Users, FolderKanban,
-  Zap, AlertCircle
+  CreditCard, Check, Sparkles, Users, FolderKanban, Zap, AlertCircle
 } from 'lucide-react';
 import { formatMoney, shortDate } from '@/lib/format';
 
@@ -34,7 +33,6 @@ export default async function AccountPage() {
     .from('profiles')
     .select('*', { count: 'exact', head: true });
 
-  // AI usage this month
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
@@ -83,7 +81,6 @@ export default async function AccountPage() {
         </p>
       </div>
 
-      {/* Trial banner */}
       {status === 'trialing' && trialDaysLeft > 0 && (
         <Card className="p-4 bg-brand-cyan/5 border-brand-cyan/30 mb-6">
           <div className="flex items-center justify-between">
@@ -98,14 +95,13 @@ export default async function AccountPage() {
                 </div>
               </div>
             </div>
-            <Button variant="default" className="brand-gradient">
+            <Button className="brand-gradient">
               Upgrade Now
             </Button>
           </div>
         </Card>
       )}
 
-      {/* Current plan */}
       <Card className="p-5 bg-card/50 mb-6">
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -193,7 +189,8 @@ export default async function AccountPage() {
 
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-border text-xs">
           <span className="text-muted-foreground">
-            Current period ends <span className="text-foreground font-mono">{shortDate(periodEnd)}</span>
+            Current period ends{' '}
+            <span className="text-foreground font-mono">{shortDate(periodEnd)}</span>
           </span>
           <div className="flex gap-2">
             <Button size="sm" variant="outline">Manage Billing</Button>
@@ -202,7 +199,6 @@ export default async function AccountPage() {
         </div>
       </Card>
 
-      {/* Plans comparison */}
       <div className="mb-3">
         <h2 className="text-sm font-semibold">Change Plan</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
@@ -254,13 +250,14 @@ export default async function AccountPage() {
         })}
       </div>
 
-      {/* Warning if close to limit */}
       {aiLimit && aiPercent > 80 && (
         <Card className="p-4 border-amber-500/30 bg-amber-500/5 mt-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <div className="text-sm font-medium">You&apos;ve used {aiPercent.toFixed(0)}% of your monthly AI quota</div>
+              <div className="text-sm font-medium">
+                You&apos;ve used {aiPercent.toFixed(0)}% of your monthly AI quota
+              </div>
               <div className="text-xs text-muted-foreground mt-1">
                 Upgrade to Pro to avoid interruptions. Extractions reset on the 1st of each month.
               </div>

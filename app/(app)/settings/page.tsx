@@ -9,12 +9,24 @@ export const dynamic = 'force-dynamic';
 export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user?.id ?? '').single();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user?.id ?? '')
+    .single();
   const { data: settings } = await supabase.from('settings').select('*').single();
 
-  const { count: projectCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-  const { count: exceptionCount } = await supabase.from('exceptions').select('*', { count: 'exact', head: true });
-  const { count: boqCount } = await supabase.from('boq_items').select('*', { count: 'exact', head: true });
+  const { count: projectCount } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true });
+
+  const { count: exceptionCount } = await supabase
+    .from('exceptions')
+    .select('*', { count: 'exact', head: true });
+
+  const { count: boqCount } = await supabase
+    .from('boq_items')
+    .select('*', { count: 'exact', head: true });
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -126,7 +138,9 @@ export default async function SettingsPage() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-            Every mutation to billing, collections, and exceptions triggers <code className="text-brand font-mono text-[10px]">recomputeProjectState()</code> — which updates project health, writes audit logs, and refreshes the timestamp above.
+            Every mutation to billing, collections, and exceptions triggers{' '}
+            <code className="text-brand font-mono text-[10px]">recomputeProjectState()</code>{' '}
+            — which updates project health, writes audit logs, and refreshes the timestamp above.
           </p>
         </div>
       </Card>
@@ -137,15 +151,17 @@ export default async function SettingsPage() {
           <h3 className="font-semibold text-destructive">Danger Zone</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Demo data reset and workspace actions. Requires Supabase SQL Editor for safety.
+          Demo data reset and workspace actions. Use Supabase SQL Editor for safety.
         </p>
         <div className="text-[10px] font-mono text-muted-foreground">
-          Available actions via Supabase:
-          <ul className="mt-2 space-y-1 ml-3">
+          <div className="mb-1">Available actions via Supabase:</div>
+          <ul className="space-y-1 ml-3">
             <li>• Reset all demo data: DELETE FROM projects;</li>
-            <li>• Reset exceptions: DELETE FROM exceptions WHERE type IS NOT NULL;</li>
+            <li>• Reset exceptions: DELETE FROM exceptions;</li>
             <li>• Force recompute: SELECT recompute_project_state(id) FROM projects;</li>
           </ul>
         </div>
       </Card>
-   
+    </div>
+  );
+}

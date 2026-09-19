@@ -71,6 +71,15 @@ export async function POST(req: Request) {
     };
 
     const risks = await summarizeRisk(ctx);
+
+    // Track usage
+    try {
+      await supabase.from('usage_events').insert({
+        event_type: 'ai_risk',
+        metadata: { project_id: projectId, risks_count: risks.length }
+      });
+    } catch {}
+
     return NextResponse.json({ risks });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });

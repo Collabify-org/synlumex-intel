@@ -61,6 +61,7 @@ export interface Project {
   end_date: string | null;
   owner_id: string | null;
   archived: boolean;
+  boq_total: number;
   created_at: string;
   updated_at: string;
 }

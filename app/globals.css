@@ -13,14 +13,14 @@
     --card: 220 26% 10%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 220 30% 8%;
+    /* Popover MUST be opaque */
+    --popover: 220 30% 9%;
     --popover-foreground: 210 40% 98%;
 
     /* Primary = SYNLUMEX cobalt */
     --primary: 224 76% 40%;
     --primary-foreground: 210 40% 98%;
 
-    /* Secondary / muted surfaces */
     --secondary: 217 33% 14%;
     --secondary-foreground: 210 40% 98%;
 
@@ -30,11 +30,9 @@
     --accent: 199 89% 48%;
     --accent-foreground: 210 40% 98%;
 
-    /* Destructive */
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    /* Inputs / borders */
     --border: 217 33% 14%;
     --input: 217 33% 14%;
     --ring: 199 89% 48%;
@@ -66,19 +64,16 @@
     font-feature-settings: 'tnum', 'zero';
   }
 
-  /* Subtle card with cobalt-tinted border glow */
   .card-glow {
     box-shadow:
       0 0 0 1px hsl(217 33% 14%),
       0 4px 24px -8px rgba(30, 64, 175, 0.25);
   }
 
-  /* Brand glow — for accent cards, active buttons, logo */
   .brand-glow {
     box-shadow: 0 0 24px -4px rgba(14, 165, 233, 0.4);
   }
 
-  /* Primary gradient — for CTAs, live badges, chart accents */
   .brand-gradient {
     background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%);
   }
@@ -90,7 +85,6 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Grid texture for hero sections */
   .bg-grid {
     background-image:
       linear-gradient(to right, hsl(217 33% 14% / 0.3) 1px, transparent 1px),

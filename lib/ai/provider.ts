@@ -20,15 +20,14 @@ const PROVIDERS: Provider[] = [
     models: [
       'llama-3.1-8b-instant',
       'llama-3.3-70b-versatile',
-      'llama-3.1-70b-versatile',
-      'mixtral-8x7b-32768'
+      'llama-3.1-70b-versatile'
     ]
   },
   {
     name: 'cerebras',
     baseURL: 'https://api.cerebras.ai/v1',
     apiKey: process.env.CEREBRAS_API_KEY,
-    models: ['llama3.1-8b', 'llama3.3-70b', 'llama-3.3-70b']
+    models: ['llama3.1-8b', 'llama3.3-70b']
   },
   {
     name: 'sambanova',
@@ -39,40 +38,23 @@ const PROVIDERS: Provider[] = [
 ];
 
 function isRetryable(status: number | undefined, message: string): boolean {
-  if (
-    status === 400 ||
-    status === 401 ||
-    status === 403 ||
-    status === 404 ||
-    status === 429 ||
-    status === 500 ||
-    status === 502 ||
-    status === 503 ||
-    status === 504
-  ) {
-    return true;
-  }
+  if ([400, 401, 403, 404, 422, 429, 500, 502, 503, 504].includes(status ?? 0)) return true;
   const m = message.toLowerCase();
-  if (
+  return (
     m.includes('does not exist') ||
     m.includes('not found') ||
     m.includes('no access') ||
     m.includes('decommissioned') ||
-    m.includes('deprecated')
-  ) {
-    return true;
-  }
-  return false;
+    m.includes('deprecated') ||
+    m.includes('rate limit')
+  );
 }
 
 async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<string> {
   let lastError: any = null;
-
   for (const p of PROVIDERS) {
     if (!p.apiKey) continue;
-
     const client = new OpenAI({ apiKey: p.apiKey, baseURL: p.baseURL });
-
     for (const model of p.models) {
       try {
         const res = await client.chat.completions.create({
@@ -84,7 +66,7 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         });
         const content = res.choices?.[0]?.message?.content;
         if (content) {
-          console.log(`[AI] ${p.name} / ${model} succeeded`);
+          console.log(`[AI] ${p.name}/${model} ok`);
           return content;
         }
         lastError = new Error(`${p.name}/${model} empty`);
@@ -92,10 +74,7 @@ async function callOpenAICompatible(prompt: string, jsonMode: boolean): Promise<
         const status = e?.status ?? e?.response?.status;
         const msg = String(e?.message ?? '');
         lastError = e;
-        if (isRetryable(status, msg)) {
-          console.warn(`[AI] ${p.name}/${model} failed (${status}): ${msg.slice(0, 100)}`);
-          continue;
-        }
+        if (isRetryable(status, msg)) continue;
         throw e;
       }
     }
@@ -107,12 +86,7 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not configured');
 
-  const models = [
-    'gemini-3.6-flash',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash-latest'
-  ];
+  const models = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-2.5-flash'];
   let lastError: any = null;
 
   for (const model of models) {
@@ -134,22 +108,18 @@ async function callGemini(prompt: string, jsonMode: boolean): Promise<string> {
       );
       if (!res.ok) {
         const t = await res.text();
-        lastError = new Error(`Gemini ${model} (${res.status}): ${t.slice(0, 200)}`);
-        if (res.status === 404 || res.status === 400 || t.includes('NOT_FOUND') || t.includes('no longer available')) {
-          continue;
-        }
+        lastError = new Error(`Gemini ${model} ${res.status}: ${t.slice(0, 200)}`);
         continue;
       }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) {
-        console.log(`[AI] gemini / ${model} succeeded`);
+        console.log(`[AI] gemini/${model} ok`);
         return text;
       }
       lastError = new Error(`Gemini ${model} empty`);
     } catch (e: any) {
       lastError = e;
-      console.warn(`[AI] gemini/${model} exception: ${e.message?.slice(0, 100)}`);
     }
   }
   throw lastError ?? new Error('All Gemini models failed');
@@ -159,7 +129,7 @@ async function callAI(prompt: string, jsonMode = true): Promise<string> {
   try {
     return await callOpenAICompatible(prompt, jsonMode);
   } catch (e: any) {
-    console.warn(`[AI] All OpenAI-compatible providers failed: ${e?.message}. Trying Gemini.`);
+    console.warn(`[AI] falling to Gemini: ${e?.message}`);
     return await callGemini(prompt, jsonMode);
   }
 }
@@ -171,9 +141,9 @@ function parseJSON<T = any>(raw: string): T {
   } catch {
     const arr = cleaned.match(/\[[\s\S]*\]/);
     const obj = cleaned.match(/\{[\s\S]*\}/);
-    const match = arr ?? obj;
-    if (!match) throw new Error('AI returned invalid JSON');
-    return JSON.parse(match[0]);
+    const m = arr ?? obj;
+    if (!m) throw new Error('AI returned invalid JSON');
+    return JSON.parse(m[0]);
   }
 }
 
@@ -204,7 +174,6 @@ ${text.slice(0, 15000)}
   const raw = await callAI(prompt, true);
   const parsed = parseJSON<any>(raw);
   const arr = Array.isArray(parsed) ? parsed : parsed.items ?? [];
-
   return arr
     .filter((x: any) => x && typeof x.description === 'string')
     .slice(0, 30)
@@ -216,7 +185,7 @@ ${text.slice(0, 15000)}
     }));
 }
 
-// ---------- RISK SUMMARY ----------
+// ---------- RISK SUMMARY (BOQ-aware) ----------
 
 export interface RiskBullet {
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -231,6 +200,8 @@ export interface ProjectRiskContext {
   health: string;
   currency: string;
   contractValue: number;
+  boqTotal: number;
+  boqItemCount: number;
   billed: number;
   collected: number;
   overdue: number;
@@ -239,20 +210,34 @@ export interface ProjectRiskContext {
 }
 
 export async function summarizeRisk(ctx: ProjectRiskContext): Promise<RiskBullet[]> {
-  const prompt = `You are a senior EPC project risk analyst. Produce 3-5 risk bullets.
+  const boqRatio = ctx.contractValue > 0
+    ? ((ctx.boqTotal / ctx.contractValue) * 100).toFixed(1)
+    : '0';
+
+  const prompt = `You are a senior EPC project risk analyst writing for the project owner.
+
+Produce 3-6 risk bullets based on the data below.
 
 Rules:
 - Return ONLY a JSON object: { "risks": [ ... ] }
 - Each item: { "severity": "low"|"medium"|"high"|"critical", "title": string (max 60 chars), "detail": string (max 160 chars) }
-- Be specific to the numbers given.
+- Be specific to the numbers. Use the currency shown.
+- PRIORITIZE: commercial/BOQ risk, cash risk, schedule risk, execution risk.
+- If BOQ items exist (boqItemCount > 0), ALWAYS include one bullet comparing BOQ total vs contract value:
+  * BOQ > contract → critical/high: "BOQ exceeds contract by X%"
+  * BOQ < 60% of contract → medium: "BOQ underrun — possible scope gap"
+  * BOQ 80-110% of contract → low: "BOQ aligns with contract"
+  * BOQ 60-80% → medium: "Partial BOQ extracted"
+- If no BOQ items, skip BOQ bullet entirely.
 
 Project data:
-${JSON.stringify(ctx, null, 2)}`;
+${JSON.stringify(ctx, null, 2)}
+
+BOQ ratio: ${boqRatio}% of contract`;
 
   const raw = await callAI(prompt, true);
   const parsed = parseJSON<any>(raw);
   const arr = Array.isArray(parsed) ? parsed : parsed.risks ?? [];
-
   return arr
     .filter((x: any) => x && typeof x.title === 'string')
     .slice(0, 6)

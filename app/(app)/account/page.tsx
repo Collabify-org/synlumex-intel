@@ -74,10 +74,10 @@ export default async function AccountPage() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <CreditCard className="h-6 w-6 text-brand-cyan" /> Account
+          <CreditCard className="h-6 w-6 text-brand-cyan" /> Billing & Plan
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Your subscription, usage, and billing
+          Manage your subscription, usage, and billing details
         </p>
       </div>
 

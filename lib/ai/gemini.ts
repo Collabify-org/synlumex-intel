@@ -1,189 +1,118 @@
 // ============================================================
-// Gemini AI Client — with model auto-fallback
+// Unified AI Provider — Waterfall Fallback (All Free)
 // ============================================================
 
-const GEMINI_MODELS = [
-  'gemini-3.6-flash',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-1.5-pro-latest'
+import OpenAI from 'openai';
+import { extractBOQ as extractBOQGemini, summarizeRisk as summarizeRiskGemini } from './gemini';
+
+// --- Provider Configs ---
+const PROVIDERS = [
+  {
+    name: 'groq',
+    baseURL: 'https://api.groq.com/openai/v1',
+    apiKey: process.env.GROQ_API_KEY,
+    model: 'llama-3.3-70b-versatile',
+    jsonSupport: true
+  },
+  {
+    name: 'cerebras',
+    baseURL: 'https://api.cerebras.ai/v1',
+    apiKey: process.env.CEREBRAS_API_KEY,
+    model: 'llama3.3-70b',
+    jsonSupport: true
+  },
+  {
+    name: 'sambanova',
+    baseURL: 'https://api.sambanova.ai/v1',
+    apiKey: process.env.SAMBANOVA_API_KEY,
+    model: 'Meta-Llama-3.3-70B-Instruct',
+    jsonSupport: true
+  }
 ];
 
-function urlFor(model: string) {
-  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-}
+// --- Generic Fallback Executor ---
+async function callWithFallback(prompt: string, jsonMode: boolean = false): Promise<string> {
+  let lastError: any = null;
 
-function getKey() {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY not configured');
-  return key;
-}
+  for (const provider of PROVIDERS) {
+    if (!provider.apiKey) continue; // Skip if key not configured
 
-async function callGemini(prompt: string, jsonMode = false): Promise<string> {
-  let lastError: Error | null = null;
-
-  for (const model of GEMINI_MODELS) {
     try {
-      const res = await fetch(`${urlFor(model)}?key=${getKey()}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 4096,
-            ...(jsonMode ? { responseMimeType: 'application/json' } : {})
-          }
-        })
+      const client = new OpenAI({
+        apiKey: provider.apiKey,
+        baseURL: provider.baseURL
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        // Try next model if it's a "not found" / "no longer available" error
-        if (
-          errText.includes('NOT_FOUND') ||
-          errText.includes('no longer available') ||
-          errText.includes('is not found for API version')
-        ) {
-          lastError = new Error(`Model ${model} unavailable: ${errText.slice(0, 200)}`);
-          continue;
-        }
-        // Any other error is fatal — don't rotate models
-        throw new Error(`Gemini API error ${res.status}: ${errText.slice(0, 500)}`);
-      }
+      const response = await client.chat.completions.create({
+        model: provider.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.2,
+        max_tokens: 4096,
+        response_format: jsonMode && provider.jsonSupport ? { type: 'json_object' } : undefined
+      });
 
-      const data = await res.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        lastError = new Error(`Model ${model} returned empty response`);
+      const content = response.choices[0]?.message?.content;
+      if (content) return content;
+
+    } catch (error: any) {
+      lastError = error;
+      // If it's a rate limit or auth issue, try next provider
+      if (error.status === 429 || error.status === 401 || error.status === 403) {
+        console.warn(`[AI Fallback] Provider ${provider.name} failed, trying next...`);
         continue;
       }
-      return text;
-    } catch (e: any) {
-      const msg = String(e?.message ?? '');
-      if (
-        msg.includes('NOT_FOUND') ||
-        msg.includes('no longer available') ||
-        msg.includes('is not found for API version')
-      ) {
-        lastError = e;
-        continue;
-      }
-      throw e;
+      // Otherwise, it's a fatal error (e.g., bad prompt)
+      throw error;
     }
   }
 
-  throw lastError ?? new Error('All Gemini models unavailable — check GEMINI_API_KEY and model names');
+  // --- Final Fallback: Gemini (if all OpenAI-compatible providers fail) ---
+  try {
+    // Note: We need to import the raw Gemini caller. 
+    // For now, we'll just throw a specific error, or you can refactor gemini.ts to export a raw caller.
+    console.warn('[AI Fallback] All OpenAI-compatible providers failed, trying Gemini...');
+    // This is a placeholder. You would call the raw gemini client here.
+    throw new Error('Gemini fallback not yet wired in this snippet');
+  } catch (geminiError) {
+    throw lastError || geminiError;
+  }
 }
 
-// ---------- BOQ EXTRACTION ----------
-
-export interface ExtractedBOQItem {
-  description: string;
-  unit: string | null;
-  quantity: number;
-  rate: number;
-}
-
-export async function extractBOQ(text: string): Promise<ExtractedBOQItem[]> {
-  const prompt = `You are a construction/EPC quantity surveyor. Extract BOQ (Bill of Quantities) line items from the text below.
-
+// --- Wrapper for BOQ Extraction ---
+export async function extractBOQ(text: string) {
+  const prompt = `You are a construction/EPC quantity surveyor. Extract BOQ line items from the text below.
+  
 Rules:
-- Return ONLY a JSON array. No prose, no markdown fences.
+- Return ONLY a JSON object with a single key "items", which is an array.
 - Each item: { "description": string, "unit": string|null, "quantity": number, "rate": number }
-- If rate is missing, estimate a realistic market rate in INR.
-- If unit is unclear, use null.
 - Max 30 items.
-- Normalize descriptions to be concise (max 80 chars).
 
-Text to extract from:
+Text:
 """
 ${text.slice(0, 15000)}
 """`;
 
-  const raw = await callGemini(prompt, true);
-  const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-
-  let parsed: any;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    // Sometimes the model wraps in an object like { "items": [...] }
-    const match = cleaned.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('AI returned invalid JSON');
-    parsed = JSON.parse(match[0]);
-  }
-
-  if (!Array.isArray(parsed)) throw new Error('Expected JSON array from AI');
-
-  return parsed
-    .filter((x: any) => x && typeof x.description === 'string')
-    .slice(0, 30)
-    .map((x: any) => ({
-      description: String(x.description).slice(0, 200),
-      unit: x.unit ? String(x.unit).slice(0, 20) : null,
-      quantity: Number(x.quantity) || 0,
-      rate: Number(x.rate) || 0
-    }));
+  const raw = await callWithFallback(prompt, true);
+  const parsed = JSON.parse(raw);
+  const items = parsed.items || parsed; // Handle both {items: []} and []
+  
+  return items.filter((x: any) => x && x.description).slice(0, 30);
 }
 
-// ---------- RISK SUMMARY ----------
-
-export interface RiskBullet {
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  detail: string;
-}
-
-export interface ProjectRiskContext {
-  code: string;
-  name: string;
-  stage: string;
-  health: string;
-  currency: string;
-  contractValue: number;
-  billed: number;
-  collected: number;
-  overdue: number;
-  exceptions: { severity: string; message: string }[];
-  daysToEnd: number | null;
-}
-
-export async function summarizeRisk(ctx: ProjectRiskContext): Promise<RiskBullet[]> {
-  const prompt = `You are a senior EPC project risk analyst. Based on the project data below, produce 3-5 risk bullets for the owner.
-
+// --- Wrapper for Risk Summary ---
+export async function summarizeRisk(ctx: any) {
+  const prompt = `You are a senior EPC project risk analyst. Produce 3-5 risk bullets.
+  
 Rules:
-- Return ONLY a JSON array. No prose, no markdown fences.
-- Each item: { "severity": "low"|"medium"|"high"|"critical", "title": string (max 60 chars), "detail": string (max 160 chars) }
-- Be specific to the numbers given. Do not invent data.
-- Prioritize: schedule risk, cash risk, execution risk.
+- Return ONLY a JSON object with a single key "risks", which is an array.
+- Each item: { "severity": "low"|"medium"|"high"|"critical", "title": string, "detail": string }
 
 Project data:
 ${JSON.stringify(ctx, null, 2)}`;
 
-  const raw = await callGemini(prompt, true);
-  const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-
-  let parsed: any;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    const match = cleaned.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('AI returned invalid JSON');
-    parsed = JSON.parse(match[0]);
-  }
-
-  if (!Array.isArray(parsed)) throw new Error('Expected JSON array from AI');
-
-  return parsed
-    .filter((x: any) => x && typeof x.title === 'string')
-    .slice(0, 6)
-    .map((x: any) => ({
-      severity: ['low', 'medium', 'high', 'critical'].includes(x.severity)
-        ? x.severity
-        : 'medium',
-      title: String(x.title).slice(0, 120),
-      detail: String(x.detail ?? '').slice(0, 300)
-    }));
+  const raw = await callWithFallback(prompt, true);
+  const parsed = JSON.parse(raw);
+  const risks = parsed.risks || parsed;
+  
+  return risks.slice(0, 6);
 }

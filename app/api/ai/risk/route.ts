@@ -20,13 +20,25 @@ export async function POST(req: Request) {
     if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
 
     const { data: billings } = await supabase
-      .from('billing').select('amount, status').eq('project_id', projectId);
+      .from('billing')
+      .select('amount, status')
+      .eq('project_id', projectId);
+
     const { data: collections } = await supabase
-      .from('collections').select('amount').eq('project_id', projectId);
+      .from('collections')
+      .select('amount')
+      .eq('project_id', projectId);
+
     const { data: exceptions } = await supabase
-      .from('exceptions').select('severity, message').eq('project_id', projectId).eq('status', 'open');
+      .from('exceptions')
+      .select('severity, message')
+      .eq('project_id', projectId)
+      .eq('status', 'open');
+
     const { data: boqItems } = await supabase
-      .from('boq_items').select('quantity, rate').eq('project_id', projectId);
+      .from('boq_items')
+      .select('quantity, rate')
+      .eq('project_id', projectId);
 
     const billed = (billings ?? []).reduce((s, b) => s + Number(b.amount), 0);
     const collected = (collections ?? []).reduce((s, c) => s + Number(c.amount), 0);

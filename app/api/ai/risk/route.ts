@@ -30,7 +30,9 @@ export async function POST(req: Request) {
 
     const billed = (billings ?? []).reduce((s, b) => s + Number(b.amount), 0);
     const collected = (collections ?? []).reduce((s, c) => s + Number(c.amount), 0);
-    const overdue = (billings ?? []).filter((b) => b.status === 'overdue').reduce((s, b) => s + Number(b.amount), 0);
+    const overdue = (billings ?? [])
+      .filter((b) => b.status === 'overdue')
+      .reduce((s, b) => s + Number(b.amount), 0);
 
     const daysToEnd = project.end_date
       ? Math.floor((new Date(project.end_date).getTime() - Date.now()) / 86400000)

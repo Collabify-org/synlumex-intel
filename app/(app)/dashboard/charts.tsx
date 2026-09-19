@@ -45,7 +45,7 @@ export function StageDistribution({ data }: { data: StageDatum[] }) {
             allowDecimals={false}
           />
           <ReTooltip
-            cursor={{ fill: 'rgba(245,158,11,0.06)' }}
+            cursor={{ fill: 'rgba(14,165,233,0.06)' }}
             contentStyle={{
               background: '#0a0a0a',
               border: '1px solid #27272a',
@@ -56,7 +56,7 @@ export function StageDistribution({ data }: { data: StageDatum[] }) {
           />
           <Bar dataKey="count" radius={[3, 3, 0, 0]}>
             {chartData.map((_, i) => (
-              <Cell key={i} fill={i === 6 ? '#f59e0b' : '#3b82f6'} />
+              <Cell key={i} fill={i === 6 ? '#0ea5e9' : '#1e40af'} />
             ))}
           </Bar>
         </BarChart>
@@ -69,11 +69,11 @@ export function HealthDistribution({
   onTrack, atRisk, critical, onHold
 }: { onTrack: number; atRisk: number; critical: number; onHold: number }) {
   const data = [
-    { name: 'On Track', value: onTrack, color: '#22c55e' },
-    { name: 'At Risk', value: atRisk, color: '#f59e0b' },
-    { name: 'Critical', value: critical, color: '#ef4444' },
-    { name: 'On Hold', value: onHold, color: '#71717a' }
-  ];
+  { name: 'On Track', value: onTrack, color: '#0ea5e9' },
+  { name: 'At Risk', value: atRisk, color: '#f59e0b' },
+  { name: 'Critical', value: critical, color: '#ef4444' },
+  { name: 'On Hold', value: onHold, color: '#64748b' }
+];
   const total = onTrack + atRisk + critical + onHold;
 
   return (

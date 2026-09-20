@@ -1,11 +1,10 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { shortDate, timeAgo } from '@/lib/format';
-import { ShieldCheck, Users, CreditCard, History, LogOut } from 'lucide-react';
-import { AdminActions } from './admin-actions';
-import { PlanEditor } from './plan-editor';
+import { shortDate } from '@/lib/format';
+import { ShieldCheck, Building2, Users, CreditCard, Crown, LogOut } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,36 +24,53 @@ export default async function AdminPage() {
     redirect('/admin/login');
   }
 
-  const { data: subscription } = await supabase
-    .from('subscriptions')
-    .select('*, plans(*)')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  const { data: plans } = await supabase
-    .from('plans')
-    .select('*')
-    .order('sort_order');
-
-  const { data: users } = await supabase
-    .from('profiles')
-    .select('*')
+  // Fetch all organizations with counts
+  const { data: orgs } = await supabase
+    .from('organizations')
+    .select(`
+      id, name, slug, plan_id, status, trial_ends_at, current_period_end, created_at
+    `)
     .order('created_at', { ascending: false });
 
-  const { data: history } = await supabase
-    .from('subscription_history')
-    .select('*, profiles(full_name)')
-    .order('created_at', { ascending: false })
-    .limit(20);
+  // For each org, fetch member count, project count, usage count
+  const orgsWithStats = await Promise.all(
+    (orgs ?? []).map(async (org) => {
+      const { count: memberCount } = await supabase
+        .from('organization_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id);
 
-  const { count: projectCount } = await supabase
-    .from('projects')
-    .select('*', { count: 'exact', head: true });
+      const { count: projectCount } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id);
 
-  const { count: usageCount } = await supabase
-    .from('usage_events')
-    .select('*', { count: 'exact', head: true });
+      const { count: usageCount } = await supabase
+        .from('usage_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id);
+
+      // Fetch plan details
+      const { data: plan } = await supabase
+        .from('plans')
+        .select('name, price_monthly, max_projects, max_users, max_ai_extractions_monthly')
+        .eq('id', org.plan_id)
+        .single();
+
+      return {
+        ...org,
+        memberCount: memberCount ?? 0,
+        projectCount: projectCount ?? 0,
+        usageCount: usageCount ?? 0,
+        plan
+      };
+    })
+  );
+
+  const totalOrgs = orgsWithStats.length;
+  const totalUsers = orgsWithStats.reduce((sum, o) => sum + o.memberCount, 0);
+  const totalProjects = orgsWithStats.reduce((sum, o) => sum + o.projectCount, 0);
+  const trialingCount = orgsWithStats.filter((o) => o.status === 'trialing').length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,163 +103,117 @@ export default async function AdminPage() {
       </header>
 
       <div className="p-6 max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <ShieldCheck className="h-6 w-6 text-brand-cyan" /> Admin Panel
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Live control over plans, subscriptions, users, and usage
-          </p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <Crown className="h-6 w-6 text-brand-cyan" /> Organizations
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              All client workspaces on the platform. Click into any org to manage plans and usage.
+            </p>
+          </div>
+          <Link
+            href="/admin/orgs/new"
+            className="inline-flex items-center gap-2 rounded-md brand-gradient text-white px-3 py-2 text-sm font-medium hover:opacity-90"
+          >
+            <Building2 className="h-4 w-4" /> New Organization
+          </Link>
         </div>
 
+        {/* Global stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card className="p-4 bg-card/50">
             <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
-              Projects
+              Total Organizations
             </div>
-            <div className="text-2xl font-semibold">{projectCount ?? 0}</div>
+            <div className="text-2xl font-semibold">{totalOrgs}</div>
           </Card>
           <Card className="p-4 bg-card/50">
             <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
-              Users
+              Total Users
             </div>
-            <div className="text-2xl font-semibold">{users?.length ?? 0}</div>
+            <div className="text-2xl font-semibold">{totalUsers}</div>
           </Card>
           <Card className="p-4 bg-card/50">
             <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
-              Usage Events
+              Total Projects
             </div>
-            <div className="text-2xl font-semibold">{usageCount ?? 0}</div>
+            <div className="text-2xl font-semibold">{totalProjects}</div>
           </Card>
           <Card className="p-4 bg-card/50">
             <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-1">
-              Plans
+              On Trial
             </div>
-            <div className="text-2xl font-semibold">{plans?.length ?? 0}</div>
+            <div className="text-2xl font-semibold text-brand-cyan">{trialingCount}</div>
           </Card>
         </div>
 
-        <Card className="p-5 bg-card/50 mb-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold">Current Subscription</h2>
-                <Badge
-                  variant={subscription?.status === 'active' ? 'green' : 'amber'}
-                  className="capitalize"
-                >
-                  {subscription?.status}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Plan:{' '}
-                <span className="text-foreground font-mono">
-                  {(subscription as any)?.plans?.name}
-                </span>{' '}
-                · Period ends {shortDate((subscription as any)?.current_period_end)} ·
-                Trial ends {shortDate((subscription as any)?.trial_ends_at)}
-              </p>
-            </div>
-          </div>
-
-          <AdminActions
-            subscriptionId={subscription?.id ?? ''}
-            currentPlanId={(subscription as any)?.plan_id ?? ''}
-            plans={(plans ?? []).map((p) => ({ id: p.id, name: p.name }))}
-          />
-        </Card>
-
-        <Card className="p-5 bg-card/50 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <CreditCard className="h-4 w-4 text-brand-cyan" />
-            <h2 className="text-lg font-semibold">Plans</h2>
-          </div>
-          <PlanEditor plans={plans ?? []} />
-        </Card>
-
-        <Card className="bg-card/50 overflow-hidden mb-6">
-          <div className="p-4 border-b border-border flex items-center gap-2">
-            <Users className="h-4 w-4 text-brand-cyan" />
-            <h2 className="text-lg font-semibold">Users</h2>
-          </div>
-          <table className="w-full text-sm">
-            <thead className="bg-muted/30">
-              <tr className="text-[10px] font-mono tracking-widest text-muted-foreground">
-                <th className="text-left p-3 font-normal">NAME</th>
-                <th className="text-left p-3 font-normal">EMAIL</th>
-                <th className="text-left p-3 font-normal">ROLE</th>
-                <th className="text-left p-3 font-normal">SUPER ADMIN</th>
-                <th className="text-right p-3 font-normal">JOINED</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(users ?? []).map((u) => (
-                <tr key={u.id} className="border-t border-border">
-                  <td className="p-3">{u.full_name}</td>
-                  <td className="p-3 font-mono text-xs text-muted-foreground">
-                    {u.email}
-                  </td>
-                  <td className="p-3">
-                    <Badge
-                      variant={u.role === 'owner' ? 'green' : 'secondary'}
-                      className="capitalize text-[10px]"
-                    >
-                      {u.role}
-                    </Badge>
-                  </td>
-                  <td className="p-3">
-                    {u.is_super_admin ? (
-                      <Badge variant="red" className="text-[10px]">
-                        SUPER ADMIN
-                      </Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="p-3 text-right text-xs text-muted-foreground font-mono">
-                    {shortDate(u.created_at)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-
+        {/* Orgs table */}
         <Card className="bg-card/50 overflow-hidden">
           <div className="p-4 border-b border-border flex items-center gap-2">
-            <History className="h-4 w-4 text-brand-cyan" />
-            <h2 className="text-lg font-semibold">Subscription Change History</h2>
+            <Building2 className="h-4 w-4 text-brand-cyan" />
+            <h2 className="text-lg font-semibold">Client Workspaces</h2>
           </div>
-          {(history ?? []).length === 0 ? (
-            <div className="p-8 text-center text-xs text-muted-foreground">
-              No changes yet.
+
+          {orgsWithStats.length === 0 ? (
+            <div className="p-12 text-center text-sm text-muted-foreground">
+              No organizations yet. Create one to get started.
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead className="bg-muted/30">
                 <tr className="text-[10px] font-mono tracking-widest text-muted-foreground">
-                  <th className="text-left p-3 font-normal">WHEN</th>
-                  <th className="text-left p-3 font-normal">FROM</th>
-                  <th className="text-left p-3 font-normal">TO</th>
-                  <th className="text-left p-3 font-normal">BY</th>
-                  <th className="text-left p-3 font-normal">REASON</th>
+                  <th className="text-left p-3 font-normal">ORGANIZATION</th>
+                  <th className="text-left p-3 font-normal">PLAN</th>
+                  <th className="text-left p-3 font-normal">STATUS</th>
+                  <th className="text-right p-3 font-normal">USERS</th>
+                  <th className="text-right p-3 font-normal">PROJECTS</th>
+                  <th className="text-right p-3 font-normal">AI USAGE</th>
+                  <th className="text-right p-3 font-normal">CREATED</th>
+                  <th className="text-right p-3 font-normal"></th>
                 </tr>
               </thead>
               <tbody>
-                {(history ?? []).map((h: any) => (
-                  <tr key={h.id} className="border-t border-border">
-                    <td className="p-3 text-xs font-mono text-muted-foreground">
-                      {timeAgo(h.created_at)}
+                {orgsWithStats.map((org) => (
+                  <tr key={org.id} className="border-t border-border hover:bg-accent/30">
+                    <td className="p-3">
+                      <div className="font-medium">{org.name}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground">
+                        {org.slug}
+                      </div>
                     </td>
-                    <td className="p-3 text-xs font-mono">{h.old_plan_id ?? '—'}</td>
-                    <td className="p-3 text-xs font-mono text-brand-cyan">
-                      {h.new_plan_id}
+                    <td className="p-3">
+                      <span className="text-xs font-mono capitalize">
+                        {org.plan?.name ?? org.plan_id ?? '—'}
+                      </span>
                     </td>
-                    <td className="p-3 text-xs">
-                      {(h.profiles as any)?.full_name ?? 'system'}
+                    <td className="p-3">
+                      <Badge
+                        variant={
+                          org.status === 'active'
+                            ? 'green'
+                            : org.status === 'trialing'
+                              ? 'amber'
+                              : 'secondary'
+                        }
+                        className="capitalize text-[10px]"
+                      >
+                        {org.status}
+                      </Badge>
                     </td>
-                    <td className="p-3 text-xs text-muted-foreground">
-                      {h.reason ?? '—'}
+                    <td className="p-3 text-right font-mono text-xs">{org.memberCount}</td>
+                    <td className="p-3 text-right font-mono text-xs">{org.projectCount}</td>
+                    <td className="p-3 text-right font-mono text-xs">{org.usageCount}</td>
+                    <td className="p-3 text-right text-xs text-muted-foreground font-mono">
+                      {shortDate(org.created_at)}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Link
+                        href={`/admin/orgs/${org.id}`}
+                        className="text-xs text-brand-cyan hover:underline"
+                      >
+                        Manage →
+                      </Link>
                     </td>
                   </tr>
                 ))}

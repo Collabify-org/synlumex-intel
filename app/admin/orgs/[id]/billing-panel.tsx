@@ -347,4 +347,70 @@ export function BillingPanel({ orgId, orgName, plan, invoices, payments }: Props
                 <th className="text-left p-3 font-normal">STATUS</th>
                 <th className="text-right p-3 font-normal"></th>
               </tr>
-            </
+            </thead>
+            <tbody>
+              {invoices.map((inv) => (
+                <tr key={inv.id} className="border-t border-border">
+                  <td className="p-3 font-mono text-xs text-brand-cyan">{inv.invoice_number}</td>
+                  <td className="p-3 text-xs">{inv.plan_name}</td>
+                  <td className="p-3 text-right font-mono text-xs">
+                    ₹{Number(inv.total_amount).toLocaleString('en-IN')}
+                  </td>
+                  <td className="p-3 text-right text-xs text-muted-foreground font-mono">
+                    {shortDate(inv.due_date)}
+                  </td>
+                  <td className="p-3">
+                    <Badge variant={statusVariant[inv.status] ?? 'secondary'} className="capitalize text-[10px]">
+                      {inv.status}
+                    </Badge>
+                  </td>
+                  <td className="p-3 text-right">
+                    <a
+                      href={`/api/admin/invoices/${inv.id}/pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-brand-cyan hover:underline inline-flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" /> View
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="rounded-md border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
+          No invoices yet. Click "New Invoice" to create one.
+        </div>
+      )}
+
+      {/* Payments log */}
+      {payments.length > 0 && (
+        <div className="mt-5">
+          <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-2">
+            Payment History
+          </div>
+          <div className="overflow-hidden rounded-md border border-border">
+            <table className="w-full text-sm">
+              <tbody>
+                {payments.map((p) => (
+                  <tr key={p.id} className="border-t border-border first:border-t-0">
+                    <td className="p-3 text-xs font-mono text-muted-foreground">
+                      {shortDate(p.received_at)}
+                    </td>
+                    <td className="p-3 text-xs capitalize">{p.method.replace('_', ' ')}</td>
+                    <td className="p-3 text-xs text-muted-foreground font-mono">{p.reference ?? '—'}</td>
+                    <td className="p-3 text-right font-mono text-xs text-emerald-400">
+                      +₹{Number(p.amount).toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}

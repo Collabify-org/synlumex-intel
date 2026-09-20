@@ -9,6 +9,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  // Update last login timestamp (fire and forget)
+  void supabase
+    .from('profiles')
+    .update({ last_login_at: new Date().toISOString() })
+    .eq('id', user.id)
+    .then();
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')

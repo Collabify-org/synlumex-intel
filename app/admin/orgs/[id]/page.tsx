@@ -13,6 +13,7 @@ import { OrgUsers } from './org-users';
 import { PlanEditor } from './plan-editor';
 import { AddUser } from './add-user';
 import { ImpersonateButton } from './impersonate-button';
+import { BillingPanel } from './billing-panel';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,11 +68,23 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
     .eq('organization_id', org.id)
     .order('joined_at', { ascending: true });
 
-  const { data: history } = await supabase
+    const { data: history } = await supabase
     .from('subscription_history')
     .select('*, profiles(full_name)')
     .order('created_at', { ascending: false })
     .limit(10);
+
+  const { data: invoices } = await supabase
+    .from('invoices')
+    .select('*')
+    .eq('organization_id', org.id)
+    .order('created_at', { ascending: false });
+
+  const { data: payments } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('organization_id', org.id)
+    .order('received_at', { ascending: false });
 
   return (
     <div className="min-h-screen bg-background">
@@ -200,6 +213,15 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
           <h2 className="text-lg font-semibold mb-4">Admin Actions</h2>
           <OrgActions orgId={org.id} currentPlanId={org.plan_id ?? ''} />
         </Card>
+
+        {/* Billing */}
+        <BillingPanel
+          orgId={org.id}
+          orgName={org.name}
+          plan={plan ? { id: plan.id, name: plan.name, price_monthly: plan.price_monthly } : null}
+          invoices={invoices ?? []}
+          payments={payments ?? []}
+        />
 
         {/* Plan Editor */}
         <Card className="p-5 bg-card/50 mb-6">

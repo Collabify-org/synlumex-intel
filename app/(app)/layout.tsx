@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Sidebar } from '@/components/shell/sidebar';
 import { Topbar } from '@/components/shell/topbar';
+import { ImpersonationBanner } from '@/components/shell/impersonation-banner';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect('/login');
 
   const { data: profile } = await supabase
@@ -15,25 +15,43 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq('id', user.id)
     .single();
 
-  // Get the user's current organization
-  const { data: membership } = await supabase
-    .from('organization_members')
-    .select('organization_id, role, organizations(*)')
-    .eq('user_id', user.id)
-    .order('joined_at', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  // If super admin is impersonating, use the impersonated org
+  let org: any = null;
+  const impersonatingOrgId = (profile as any)?.impersonating_org_id;
 
-  const org = (membership as any)?.organizations ?? null;
+  if (impersonatingOrgId) {
+    // Fetch the impersonated org
+    const { data: impOrg } = await supabase
+      .from('organizations')
+      .select('*')
+      .eq('id', impersonatingOrgId)
+      .single();
+    org = impOrg;
+  } else {
+    // Normal flow: user's own org
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id, role, organizations(*)')
+      .eq('user_id', user.id)
+      .order('joined_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    org = (membership as any)?.organizations ?? null;
+  }
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-background">
-      <Sidebar profile={profile} org={org} />
-      <div className="flex-1 flex flex-col min-w-0 h-screen">
-        <Topbar profile={profile} org={org} />
-        <main className="flex-1 overflow-y-auto min-h-0">
-          {children}
-        </main>
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-background">
+      {impersonatingOrgId && org && (
+        <ImpersonationBanner orgName={org.name} />
+      )}
+      <div className="flex-1 flex min-h-0">
+        <Sidebar profile={profile} org={org} />
+        <div className="flex-1 flex flex-col min-w-0 h-full">
+          <Topbar profile={profile} org={org} />
+          <main className="flex-1 overflow-y-auto min-h-0">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

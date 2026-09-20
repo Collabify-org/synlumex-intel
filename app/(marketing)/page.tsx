@@ -6,6 +6,8 @@ import {
   BarChart3, Lock, Clock, Brain
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">

@@ -9,7 +9,17 @@ import {
 } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
-type Props = { profile: Profile | null };
+type Org = {
+  id: string;
+  name: string;
+  plan_id: string | null;
+  status: string;
+} | null;
+
+type Props = {
+  profile: Profile | null;
+  org?: Org;
+};
 
 const NAV = {
   OPERATIONS: [
@@ -28,11 +38,12 @@ const NAV = {
   ]
 };
 
-export function Sidebar({ profile }: Props) {
+export function Sidebar({ profile, org }: Props) {
   const path = usePathname();
 
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col h-screen">
+      {/* Brand */}
       <div className="h-14 flex items-center gap-2 px-4 border-b border-border">
         <div className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow">
           <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
@@ -42,6 +53,21 @@ export function Sidebar({ profile }: Props) {
           <span className="text-[10px] font-mono text-muted-foreground tracking-widest">INTEL</span>
         </div>
       </div>
+
+      {/* Org nameplate */}
+      {org && (
+        <div className="px-3 pt-3">
+          <div className="rounded-md border border-border bg-background/40 px-3 py-2">
+            <div className="text-[9px] font-mono tracking-widest text-muted-foreground uppercase mb-0.5">
+              Workspace
+            </div>
+            <div className="text-xs font-medium truncate">{org.name}</div>
+            <div className="text-[10px] font-mono text-brand-cyan capitalize mt-0.5">
+              {org.plan_id ?? 'no plan'} · {org.status}
+            </div>
+          </div>
+        </div>
+      )}
 
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         {Object.entries(NAV).map(([section, items]) => (
@@ -75,6 +101,7 @@ export function Sidebar({ profile }: Props) {
         ))}
       </nav>
 
+      {/* User footer */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3 px-2">
           <div className="h-8 w-8 rounded-full brand-gradient flex items-center justify-center text-xs font-bold text-white">

@@ -4,9 +4,13 @@ import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { shortDate, timeAgo } from '@/lib/format';
-import { ArrowLeft, Building2, Users, FolderKanban, Zap, ShieldCheck, LogOut } from 'lucide-react';
+import {
+  ArrowLeft, Building2, Users, FolderKanban, Zap, ShieldCheck,
+  LogOut, CreditCard
+} from 'lucide-react';
 import { OrgActions } from './org-actions';
 import { OrgUsers } from './org-users';
+import { PlanEditor } from './plan-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +30,6 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
     redirect('/admin/login');
   }
 
-  // Fetch the org
   const { data: org } = await supabase
     .from('organizations')
     .select('*')
@@ -35,14 +38,17 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
 
   if (!org) notFound();
 
-  // Fetch plan
   const { data: plan } = await supabase
     .from('plans')
     .select('*')
     .eq('id', org.plan_id)
     .single();
 
-  // Fetch counts
+  const { data: allPlans } = await supabase
+    .from('plans')
+    .select('*')
+    .order('sort_order');
+
   const { count: projectCount } = await supabase
     .from('projects')
     .select('*', { count: 'exact', head: true })
@@ -53,14 +59,12 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
     .select('*', { count: 'exact', head: true })
     .eq('organization_id', org.id);
 
-  // Fetch members with profile info
   const { data: members } = await supabase
     .from('organization_members')
     .select('id, role, joined_at, user_id, profiles(id, email, full_name)')
     .eq('organization_id', org.id)
     .order('joined_at', { ascending: true });
 
-  // Fetch subscription history
   const { data: history } = await supabase
     .from('subscription_history')
     .select('*, profiles(full_name)')
@@ -117,7 +121,11 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
                 <span className="text-xs font-mono text-muted-foreground">{org.slug}</span>
                 <Badge
                   variant={
-                    org.status === 'active' ? 'green' : org.status === 'trialing' ? 'amber' : 'secondary'
+                    org.status === 'active'
+                      ? 'green'
+                      : org.status === 'trialing'
+                        ? 'amber'
+                        : 'secondary'
                   }
                   className="capitalize text-[10px]"
                 >
@@ -158,7 +166,7 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
           </Card>
         </div>
 
-        {/* Plan + Period info */}
+        {/* Plan Details */}
         <Card className="p-5 bg-card/50 mb-6">
           <h2 className="text-lg font-semibold mb-4">Plan Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -184,16 +192,25 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
           </div>
         </Card>
 
-        {/* Actions */}
+        {/* Admin Actions */}
         <Card className="p-5 bg-card/50 mb-6">
           <h2 className="text-lg font-semibold mb-4">Admin Actions</h2>
-          <OrgActions
-            orgId={org.id}
-            currentPlanId={org.plan_id ?? ''}
-          />
+          <OrgActions orgId={org.id} currentPlanId={org.plan_id ?? ''} />
         </Card>
 
-        {/* Users of this org */}
+        {/* Plan Editor */}
+        <Card className="p-5 bg-card/50 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <CreditCard className="h-4 w-4 text-brand-cyan" />
+            <h2 className="text-lg font-semibold">Manage Plans</h2>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            Edit pricing tiers and limits. These apply globally to all organizations.
+          </p>
+          <PlanEditor plans={allPlans ?? []} />
+        </Card>
+
+        {/* Users */}
         <Card className="bg-card/50 overflow-hidden mb-6">
           <div className="p-4 border-b border-border flex items-center gap-2">
             <Users className="h-4 w-4 text-brand-cyan" />

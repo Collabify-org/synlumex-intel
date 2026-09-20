@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,12 +14,38 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // If already logged in as super admin, go straight to /admin
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_super_admin')
+          .eq('id', user.id)
+          .single();
+        if (profile?.is_super_admin) {
+          router.replace('/admin');
+          return;
+        }
+      }
+      if (mounted) setChecking(false);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [router, supabase]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    await supabase.auth.signOut();
 
     const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
@@ -40,13 +66,21 @@ export default function AdminLoginPage() {
 
     if (!profile?.is_super_admin) {
       await supabase.auth.signOut();
-      setError('This account does not have admin access.');
+      setError('Access denied. This account is not a super admin.');
       setLoading(false);
       return;
     }
 
-    router.push('/admin');
+    router.replace('/admin');
     router.refresh();
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-brand-cyan" />
+      </div>
+    );
   }
 
   return (
@@ -72,7 +106,10 @@ export default function AdminLoginPage() {
 
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs uppercase tracking-wider text-muted-foreground">
+              <Label
+                htmlFor="email"
+                className="text-xs uppercase tracking-wider text-muted-foreground"
+              >
                 Admin Email
               </Label>
               <Input
@@ -88,7 +125,10 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs uppercase tracking-wider text-muted-foreground">
+              <Label
+                htmlFor="password"
+                className="text-xs uppercase tracking-wider text-muted-foreground"
+              >
                 Password
               </Label>
               <Input
@@ -108,7 +148,11 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full brand-gradient" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full brand-gradient"
+              disabled={loading}
+            >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign in to Admin
             </Button>

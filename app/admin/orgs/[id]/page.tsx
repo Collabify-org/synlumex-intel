@@ -11,6 +11,7 @@ import {
 import { OrgActions } from './org-actions';
 import { OrgUsers } from './org-users';
 import { PlanEditor } from './plan-editor';
+import { AddUser } from './add-user';
 
 export const dynamic = 'force-dynamic';
 
@@ -216,6 +217,7 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
             <Users className="h-4 w-4 text-brand-cyan" />
             <h2 className="text-lg font-semibold">Users in this Organization</h2>
           </div>
+          <AddUser orgId={org.id} />
           <OrgUsers members={(members ?? []) as any} />
         </Card>
 

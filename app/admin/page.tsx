@@ -73,12 +73,14 @@ export default async function AdminPage() {
           <span className="text-xs text-muted-foreground font-mono">
             {profile.full_name} · {profile.email}
           </span>
-          <a
-            href="/api/admin/signout"
-            className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
-          >
-            <LogOut className="h-3 w-3" /> Sign out
-          </a>
+                    <form action="/admin/signout" method="GET">
+            <button
+              type="submit"
+              className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+            >
+              <LogOut className="h-3 w-3" /> Sign out
+            </button>
+          </form>
         </div>
       </header>
 

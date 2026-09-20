@@ -10,9 +10,19 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 
-type Props = { profile: Profile | null };
+type Org = {
+  id: string;
+  name: string;
+  plan_id: string | null;
+  status: string;
+} | null;
 
-export function Topbar({ profile }: Props) {
+type Props = {
+  profile: Profile | null;
+  org?: Org;
+};
+
+export function Topbar({ profile, org }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const [clock, setClock] = useState('');
@@ -87,10 +97,13 @@ export function Topbar({ profile }: Props) {
 
           {menuOpen && (
             <div
-              className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-border overflow-hidden z-[100] shadow-2xl"
+              className="absolute right-0 top-full mt-2 w-72 rounded-lg border border-border overflow-hidden z-[100] shadow-2xl"
               style={{ backgroundColor: '#0d1424' }}
             >
-              <div className="p-4 border-b border-border" style={{ backgroundColor: '#0d1424' }}>
+              <div
+                className="p-4 border-b border-border"
+                style={{ backgroundColor: '#0d1424' }}
+              >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full brand-gradient flex items-center justify-center text-sm font-bold text-white">
                     {initial}
@@ -102,11 +115,21 @@ export function Topbar({ profile }: Props) {
                     <div className="text-[10px] font-mono text-muted-foreground truncate">
                       {profile?.email ?? ''}
                     </div>
-                    <div className="text-[10px] font-mono text-brand-cyan capitalize mt-0.5">
-                      {profile?.role ?? 'member'}
-                    </div>
                   </div>
                 </div>
+                {org && (
+                  <div className="mt-3 pt-3 border-t border-border/60">
+                    <div className="text-[9px] font-mono tracking-widest text-muted-foreground uppercase mb-0.5">
+                      Workspace
+                    </div>
+                    <div className="text-xs font-medium text-foreground truncate">
+                      {org.name}
+                    </div>
+                    <div className="text-[10px] font-mono text-brand-cyan capitalize mt-0.5">
+                      {org.plan_id ?? 'no plan'} · {org.status}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="py-1" style={{ backgroundColor: '#0d1424' }}>
@@ -136,7 +159,10 @@ export function Topbar({ profile }: Props) {
                 </Link>
               </div>
 
-              <div className="py-1 border-t border-border" style={{ backgroundColor: '#0d1424' }}>
+              <div
+                className="py-1 border-t border-border"
+                style={{ backgroundColor: '#0d1424' }}
+              >
                 <button
                   onClick={signOut}
                   className="flex items-center gap-3 px-4 py-2 text-sm w-full text-left hover:bg-destructive/10 text-destructive transition-colors"

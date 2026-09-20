@@ -110,7 +110,7 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
           <ArrowLeft className="h-3 w-3" /> All Organizations
         </Link>
 
-        {/* Header */}
+                {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-lg bg-brand/10 border border-brand/30 flex items-center justify-center">
@@ -135,6 +135,7 @@ export default async function OrgDetailPage({ params }: { params: { id: string }
               </div>
             </div>
           </div>
+          <ImpersonateButton orgId={org.id} />
         </div>
 
         {/* Stats grid */}

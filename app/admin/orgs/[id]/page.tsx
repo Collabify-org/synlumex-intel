@@ -12,6 +12,7 @@ import { OrgActions } from './org-actions';
 import { OrgUsers } from './org-users';
 import { PlanEditor } from './plan-editor';
 import { AddUser } from './add-user';
+import { ImpersonateButton } from './impersonate-button';
 
 export const dynamic = 'force-dynamic';
 

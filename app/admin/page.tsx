@@ -58,25 +58,27 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Admin topbar */}
-      <header className="h-14 border-b border-border bg-card/30 flex items-center px-6">
+      {/* Sticky admin topbar */}
+      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 flex items-center px-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow">
             <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
           </div>
           <div>
             <div className="text-sm font-bold tracking-tight">SYNLUMEX ADMIN</div>
-            <div className="text-[10px] font-mono text-muted-foreground">Super Admin Console</div>
+            <div className="text-[10px] font-mono text-muted-foreground">
+              Super Admin Console
+            </div>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-4">
           <span className="text-xs text-muted-foreground font-mono">
             {profile.full_name} · {profile.email}
           </span>
-                    <form action="/admin/signout" method="GET">
+          <form action="/admin/signout" method="GET">
             <button
               type="submit"
-              className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+              className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors"
             >
               <LogOut className="h-3 w-3" /> Sign out
             </button>
@@ -178,7 +180,9 @@ export default async function AdminPage() {
               {(users ?? []).map((u) => (
                 <tr key={u.id} className="border-t border-border">
                   <td className="p-3">{u.full_name}</td>
-                  <td className="p-3 font-mono text-xs text-muted-foreground">{u.email}</td>
+                  <td className="p-3 font-mono text-xs text-muted-foreground">
+                    {u.email}
+                  </td>
                   <td className="p-3">
                     <Badge
                       variant={u.role === 'owner' ? 'green' : 'secondary'}
@@ -232,11 +236,15 @@ export default async function AdminPage() {
                       {timeAgo(h.created_at)}
                     </td>
                     <td className="p-3 text-xs font-mono">{h.old_plan_id ?? '—'}</td>
-                    <td className="p-3 text-xs font-mono text-brand-cyan">{h.new_plan_id}</td>
+                    <td className="p-3 text-xs font-mono text-brand-cyan">
+                      {h.new_plan_id}
+                    </td>
                     <td className="p-3 text-xs">
                       {(h.profiles as any)?.full_name ?? 'system'}
                     </td>
-                    <td className="p-3 text-xs text-muted-foreground">{h.reason ?? '—'}</td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {h.reason ?? '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

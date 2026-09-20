@@ -32,10 +32,12 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAuthRoute = path.startsWith('/login');
   const isAdminRoute = path.startsWith('/admin');
+  const isHomepage = path === '/';
   const isPublic =
     path.startsWith('/_next') ||
     path.startsWith('/favicon') ||
-    path.startsWith('/api');
+    path.startsWith('/api') ||
+    isHomepage;
 
   if (isPublic) return response;
 

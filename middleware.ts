@@ -3,6 +3,18 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
+// All public marketing routes (accessible without auth)
+const PUBLIC_ROUTES = [
+  '/',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/refund',
+  '/disclaimer',
+  '/pricing'
+];
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
 
@@ -30,26 +42,33 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isAuthRoute = path.startsWith('/login');
-  const isAdminRoute = path.startsWith('/admin');
-  const isHomepage = path === '/';
+
+  // Always allow Next.js internals, favicons, and API routes
   const isPublic =
     path.startsWith('/_next') ||
     path.startsWith('/favicon') ||
     path.startsWith('/api') ||
-    isHomepage;
+    path.startsWith('/icon') ||
+    path.startsWith('/apple-icon') ||
+    path.startsWith('/opengraph-image') ||
+    PUBLIC_ROUTES.includes(path);
 
   if (isPublic) return response;
 
-  // Admin routes: allow through (page handles auth)
-  if (isAdminRoute) return response;
+  // Admin routes are handled by their own page-level auth
+  if (path.startsWith('/admin')) return response;
 
+  // Auth route (login)
+  const isAuthRoute = path.startsWith('/login');
+
+  // Not logged in + trying to reach protected route → login
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
+  // Already logged in + hitting /login → dashboard
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';

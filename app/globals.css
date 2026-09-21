@@ -240,7 +240,31 @@
       radial-gradient(ellipse 70% 40% at 50% 0%, rgba(14, 165, 233, 0.06) 0%, transparent 60%),
       hsl(210 40% 99%);
   }
-
+  
+/* Subtle top glow for light sections — creates "glow bleed" from hero */
+  .section-glow {
+    position: relative;
+  }
+  .section-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 200px;
+    background: radial-gradient(
+      ellipse at center top,
+      rgba(14, 165, 233, 0.07) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+  .section-glow > * {
+    position: relative;
+    z-index: 1;
+  }
   /* Grid texture (subtle) */
   .bg-grid-subtle {
     background-image:

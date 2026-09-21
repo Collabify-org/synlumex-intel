@@ -6,7 +6,8 @@ import {
   LayoutGrid, FolderKanban, AlertTriangle, Banknote, Sparkles, Bell,
   ArrowRight, Check, Zap, Target, TrendingUp, Users,
   Factory, Truck, MessageCircle, Play,
-  BarChart3, Lock, Clock, Brain, Droplet, Pickaxe, HardHat
+  BarChart3, Lock, Clock, Brain, Droplet, Pickaxe, HardHat,
+  TrendingDown, CalendarClock, FileX, ShieldAlert, UserMinus, Database
 } from 'lucide-react';
 import { ContactFab } from '@/components/marketing/contact-fab';
 import { Logo } from '@/components/brand/logo';
@@ -25,7 +26,14 @@ export default function HomePage() {
       monthly: 1499,
       yearly: 1499 * 12 * 0.83,
       tagline: 'For small teams getting started',
-      features: ['10 projects', '3 team members', '100 AI extractions/month', 'Core dashboards', 'Email support'],
+      features: [
+        '25 projects',
+        '5 team members',
+        '250 AI extractions/month',
+        'Owner Command Center',
+        'Exception engine',
+        'Email support'
+      ],
       highlight: false,
       cta: 'Start free trial'
     },
@@ -34,7 +42,16 @@ export default function HomePage() {
       monthly: 3999,
       yearly: 3999 * 12 * 0.83,
       tagline: 'For growing project businesses',
-      features: ['100 projects', '15 team members', '1,000 AI extractions/month', 'Historical intelligence', 'Priority support', 'Custom domains'],
+      features: [
+        '250 projects',
+        '25 team members',
+        '2,500 AI extractions/month',
+        'Historical intelligence',
+        'Predictive risk flags',
+        'Priority support',
+        'Custom domains',
+        'Unbilled revenue tracking'
+      ],
       highlight: true,
       cta: 'Start free trial'
     },
@@ -43,7 +60,16 @@ export default function HomePage() {
       monthly: 9999,
       yearly: 9999 * 12 * 0.83,
       tagline: 'For large portfolios',
-      features: ['Unlimited projects', 'Unlimited users', 'Unlimited AI extractions', 'Full API access', 'SSO / SAML', 'Dedicated support', 'Custom SLA'],
+      features: [
+        '1,000 projects',
+        '100 team members',
+        '25,000 AI extractions/month',
+        'Full API access',
+        'SSO / SAML',
+        'Dedicated support',
+        'Custom SLA',
+        'On-premise deployment'
+      ],
       highlight: false,
       cta: 'Talk to sales'
     }
@@ -71,10 +97,20 @@ export default function HomePage() {
         }}
       />
 
-      {/* ================= DARK HERO WRAPPER ================= */}
-      <div className="dark-hero bg-background text-foreground">
+      {/* ================= DARK HERO ================= */}
+      <div className="dark-hero relative bg-background text-foreground overflow-hidden">
+        {/* Background layers */}
+        <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-subtle pointer-events-none opacity-60" />
+        <div className="absolute inset-0 bg-noise pointer-events-none" />
+
+        {/* Floating orbs */}
+        <div className="orb orb-cobalt animate-orb" style={{ width: 500, height: 500, top: -100, left: -100, opacity: 0.35 }} />
+        <div className="orb orb-cyan animate-orb" style={{ width: 400, height: 400, top: 100, right: -120, opacity: 0.28, animationDelay: '-5s' }} />
+        <div className="orb orb-glow animate-orb" style={{ width: 300, height: 300, bottom: 100, left: '30%', opacity: 0.18, animationDelay: '-10s' }} />
+
         {/* ============ NAVBAR ============ */}
-        <nav className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-lg">
+        <nav className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/70 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
             <Link href="/" className="group flex items-center" aria-label="SYNLUMEX home">
               <Logo size={32} interactive priority />
@@ -107,8 +143,7 @@ export default function HomePage() {
         <div className="h-16" />
 
         {/* ============ HERO ============ */}
-        <section className="relative pt-24 pb-20 px-6 overflow-hidden">
-          <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
+        <section className="relative pt-20 pb-24 px-6">
           <div className="max-w-7xl mx-auto text-center relative">
             <Reveal>
               <div className="inline-flex items-center gap-2 rounded-full border border-brand-cyan/30 bg-brand-cyan/5 px-3 py-1 text-xs font-mono tracking-wider text-brand-cyan mb-6">
@@ -118,15 +153,17 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={100}>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 max-w-5xl mx-auto">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-semibold tracking-[-0.035em] leading-[1.08] mb-5 max-w-4xl mx-auto">
                 Manage projects, money, and compliance in one place.
                 <br />
-                <span className="brand-gradient-text">You don&apos;t lose on the project. You lose on what happens between stages.</span>
+                <span className="brand-gradient-text">
+                  You don&apos;t lose on the project. You lose on what happens between stages.
+                </span>
               </h1>
             </Reveal>
 
             <Reveal delay={200}>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
                 Run projects, track money, close the gaps. Extra spend. Silent overruns.
                 Unbilled work. All invisible until it&apos;s too late.
               </p>
@@ -145,47 +182,39 @@ export default function HomePage() {
                 </a>
                 <a
                   href="#screenshot"
-                  className="group rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-accent/10 transition-colors flex items-center gap-2"
+                  className="group rounded-md border border-border bg-card/50 backdrop-blur-sm px-6 py-3 text-sm font-medium hover:bg-card transition-colors flex items-center gap-2"
                 >
                   <Play className="h-4 w-4" /> See it in action
                 </a>
               </div>
             </Reveal>
 
+            {/* 7 Metric Cards */}
             <Reveal delay={400}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-12">
-                <div className="rounded-lg border border-border bg-card/50 p-4">
-                  <div className="text-2xl font-bold brand-gradient-text">
-                    <AnimatedCounter value={945} prefix="₹" suffix=" Cr" />
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 max-w-6xl mx-auto mb-12">
+                {[
+                  { value: 11.5, prefix: '$', suffix: 'M', decimals: 1, label: 'Portfolio Value' },
+                  { value: 12, label: 'Live Projects' },
+                  { value: 45, suffix: '%', label: 'Faster Handoffs' },
+                  { value: 6, suffix: '%', label: 'Rework Prevented' },
+                  { value: 3, suffix: 'mo', label: 'Delays Avoided' },
+                  { value: 1200, suffix: '+', label: 'AI Extractions' },
+                  { value: 4, label: 'AI Providers' }
+                ].map((m, i) => (
+                  <div key={i} className="glass-card rounded-lg p-3 text-center hover-lift">
+                    <div className="text-lg font-bold brand-gradient-text">
+                      <AnimatedCounter
+                        value={m.value}
+                        prefix={m.prefix ?? ''}
+                        suffix={m.suffix ?? ''}
+                        decimals={m.decimals ?? 0}
+                      />
+                    </div>
+                    <div className="text-[9px] font-mono tracking-widest text-muted-foreground uppercase mt-1">
+                      {m.label}
+                    </div>
                   </div>
-                  <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mt-1">
-                    Portfolio Value
-                  </div>
-                </div>
-                <div className="rounded-lg border border-border bg-card/50 p-4">
-                  <div className="text-2xl font-bold brand-gradient-text">
-                    <AnimatedCounter value={12} />
-                  </div>
-                  <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mt-1">
-                    Live Projects
-                  </div>
-                </div>
-                <div className="rounded-lg border border-border bg-card/50 p-4">
-                  <div className="text-2xl font-bold brand-gradient-text">
-                    <AnimatedCounter value={4} />
-                  </div>
-                  <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mt-1">
-                    AI Providers
-                  </div>
-                </div>
-                <div className="rounded-lg border border-border bg-card/50 p-4">
-                  <div className="text-2xl font-bold brand-gradient-text">
-                    <AnimatedCounter value={14} />
-                  </div>
-                  <div className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mt-1">
-                    Lifecycle Stages
-                  </div>
-                </div>
+                ))}
               </div>
             </Reveal>
 
@@ -200,11 +229,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ SCREENSHOT — still dark ============ */}
-        <section id="screenshot" className="pb-24 px-6">
+        {/* ============ SCREENSHOT ============ */}
+        <section id="screenshot" className="relative pb-24 px-6">
           <div className="max-w-6xl mx-auto">
             <Reveal>
-              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xl shadow-brand/10">
+              <div className="rounded-xl border border-border bg-card/60 backdrop-blur-md overflow-hidden shadow-2xl shadow-brand/20 hover-lift">
                 <div className="h-10 bg-card/80 border-b border-border flex items-center px-4 gap-2">
                   <div className="flex gap-1.5">
                     <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
@@ -215,10 +244,10 @@ export default function HomePage() {
                     synlumex-intel.vercel.app/dashboard
                   </div>
                 </div>
-                <div className="p-6 bg-background">
+                <div className="p-6 bg-background/80">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <div className="text-xl font-bold">Owner Command Center</div>
+                      <div className="text-xl font-semibold">Owner Command Center</div>
                       <div className="text-xs text-muted-foreground mt-1">Portfolio health · 12 active projects</div>
                     </div>
                     <div className="text-[10px] font-mono text-brand-cyan">LIVE</div>
@@ -248,37 +277,49 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* ================= LIGHT BODY BELOW ================= */}
-      <div className="bg-background text-foreground">
-        {/* ============ PROBLEM ============ */}
-        <section className="py-24 px-6 border-t border-border">
+      {/* ================= LIGHT BODY ================= */}
+      <div className="relative bg-light-gradient text-foreground">
+        {/* ============ THE 7 FLOWS (where projects bleed) ============ */}
+        <section className="relative py-24 px-6 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">THE PROBLEM</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                  Every project runs on Excel, email, and memory
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  WHERE PROJECTS BLEED
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
+                  Seven flows. Every one leaks time and money.
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Your ERP tracks transactions. Your PM tool tracks tasks. But the actual work — approvals,
-                  change orders, billing, compliance — lives in the gaps between them.
+                  These aren&apos;t edge cases. They happen on every project — and nobody sees the bleeding until it&apos;s compounded.
                 </p>
               </div>
             </Reveal>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { icon: AlertTriangle, title: 'Handoffs get lost', body: 'Change orders sit in email. Approvals wait for signatures. Billing gets delayed. Nobody knows where work is stuck.' },
-                { icon: Banknote, title: 'Margin dies invisibly', body: "You know what you billed. You don't know what's stuck between execution and collection. Unbilled revenue is invisible." },
-                { icon: Brain, title: 'Knowledge walks away', body: 'When your best project manager leaves, the process leaves with them. Six months later, you repeat the same mistakes.' }
+                { icon: Banknote, title: 'Cash flow vs. progress', pain: 'Progress isn\'t linear, but cash outflow is. Payment delays cascade into demobilization.', cost: '15-30 days of stuck working capital' },
+                { icon: AlertTriangle, title: 'Design changes cascade', pain: 'Client changes ripple through schedule, procurement, and labour.', cost: 'Avg 10-20% cost overrun per change' },
+                { icon: TrendingDown, title: 'Procurement delays compound', pain: 'Late awards push mobilization, push site work, push delivery.', cost: 'Weeks of catch-up avoided' },
+                { icon: Users, title: 'Labour shortage stretches timelines', pain: 'Labour strength drops 30% during disruptions. Projects stall.', cost: '3-6 months of delay per event' },
+                { icon: CalendarClock, title: 'Statutory approval bottlenecks', pain: 'Multiple agencies. Sequential clearances. Weeks of waiting.', cost: 'Direct cost + opportunity loss' },
+                { icon: FileX, title: 'Rework from upstream factors', pain: 'Design errors and interface failures propagate through feedback loops.', cost: '5-6% of contract value wasted' },
+                { icon: Database, title: 'Information lag field to office', pain: 'Field reports arrive after budget-killing events have already compounded.', cost: 'Owners see reality weeks later' }
               ].map((item, i) => (
-                <Reveal key={i} delay={(i * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card p-6 hover-lift card-glow">
-                    <div className="h-10 w-10 rounded-md bg-destructive/10 border border-destructive/30 flex items-center justify-center mb-4">
-                      <item.icon className="h-5 w-5 text-destructive" />
+                <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
+                  <div className="group glass-card rounded-lg p-6 hover-lift h-full">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="h-10 w-10 rounded-md bg-destructive/10 border border-destructive/20 flex items-center justify-center shrink-0">
+                        <item.icon className="h-5 w-5 text-destructive" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm leading-snug mb-1">{item.title}</h3>
+                        <div className="text-[10px] font-mono tracking-wider text-destructive uppercase">
+                          {item.cost}
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="font-semibold mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.body}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.pain}</p>
                   </div>
                 </Reveal>
               ))}
@@ -286,13 +327,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ SOLUTION ============ */}
-        <section className="py-24 px-6 bg-secondary/30">
+        {/* ============ SOLUTION (3 strategic pillars) ============ */}
+        <section className="relative py-24 px-6 bg-secondary/40">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">THE SOLUTION</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  THE SOLUTION
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
                   One operating system. Every handoff closed.
                 </h2>
               </div>
@@ -305,12 +348,14 @@ export default function HomePage() {
                 { icon: Sparkles, step: '03', title: 'Intelligence Layer', body: 'Every mutation triggers recompute. Exceptions auto-created. Historical patterns compound. The system gets smarter over time.', features: ['Auto-flagged exceptions', 'AI risk analysis', 'Historical intelligence'] }
               ].map((item, i) => (
                 <Reveal key={i} delay={(i * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card p-6 relative overflow-hidden hover-lift card-glow">
-                    <div className="absolute top-4 right-4 text-6xl font-bold text-muted/30 font-mono">{item.step}</div>
+                  <div className="group glass-card rounded-lg p-6 relative overflow-hidden hover-lift h-full">
+                    <div className="absolute top-4 right-4 text-6xl font-bold text-muted/20 font-mono">
+                      {item.step}
+                    </div>
                     <div className="h-10 w-10 rounded-md brand-gradient flex items-center justify-center mb-4">
                       <item.icon className="h-5 w-5 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                    <h3 className="text-base font-semibold mb-2">{item.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.body}</p>
                     <ul className="space-y-1.5">
                       {item.features.map((f, j) => (
@@ -327,13 +372,63 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ FEATURES ============ */}
-        <section id="features" className="py-24 px-6 border-t border-border">
+        {/* ============ WHAT YOU RECOVER (7 savings) ============ */}
+        <section className="relative py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">CAPABILITIES</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                <div className="text-xs font-mono tracking-widest text-emerald-500 uppercase mb-3">
+                  WHAT YOU RECOVER
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
+                  Every leak, plugged. Measurably.
+                </h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Not features. Outcomes. Here&apos;s what changes when the gaps close.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { icon: Banknote, title: 'Unbilled revenue recovered', value: '$40K-80K', unit: 'per project clawed back', tone: 'emerald' },
+                { icon: TrendingUp, title: 'Margin preserved', value: '5-15%', unit: 'of contract value not lost', tone: 'emerald' },
+                { icon: AlertTriangle, title: 'Overruns caught early', value: '3%', unit: 'deviation flagged, not 30%', tone: 'emerald' },
+                { icon: Clock, title: 'Handoff delays cut', value: '40-60%', unit: 'faster approval cycles', tone: 'emerald' },
+                { icon: ShieldAlert, title: 'Compliance fines avoided', value: '$15K-40K', unit: 'per breach prevented', tone: 'emerald' },
+                { icon: UserMinus, title: 'PM dependency removed', value: '100%', unit: 'workflows documented', tone: 'emerald' },
+                { icon: Database, title: 'Data trusted again', value: '1 source', unit: 'of truth every team uses', tone: 'emerald' }
+              ].map((item, i) => (
+                <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
+                  <div className="group glass-card rounded-lg p-6 hover-lift h-full">
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="h-10 w-10 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:hover-icon-glow transition-all">
+                        <item.icon className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm leading-snug">{item.title}</h3>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold brand-gradient-text mb-1">
+                      {item.value}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{item.unit}</div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ============ CAPABILITIES ============ */}
+        <section id="features" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
+          <div className="max-w-7xl mx-auto">
+            <Reveal>
+              <div className="text-center mb-16">
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  CAPABILITIES
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
                   Everything you need in one console
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -344,7 +439,7 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { icon: LayoutGrid, title: 'Command Center', body: 'Real-time portfolio KPIs — value, health, cash flow, exceptions.' },
+                { icon: LayoutGrid, title: 'Owner Command Center', body: 'Real-time portfolio KPIs — value, health, cash flow, exceptions.' },
                 { icon: FolderKanban, title: '14-Stage Lifecycle', body: 'From intake to closeout. Each stage has owners, gates, and evidence.' },
                 { icon: Banknote, title: 'Commercial Visibility', body: 'Execution vs billing vs collection. Unbilled revenue surfaced.' },
                 { icon: AlertTriangle, title: 'Exception Engine', body: 'Auto-flags delays, overruns, collection gaps. Assigns owners.' },
@@ -355,7 +450,7 @@ export default function HomePage() {
                 { icon: Lock, title: 'Audit Trail', body: 'Every mutation logged. Every action provable. Every change tracked.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card p-5 hover-lift card-glow">
+                  <div className="group glass-card rounded-lg p-5 hover-lift h-full">
                     <div className="h-9 w-9 rounded-md bg-brand/10 border border-brand/30 flex items-center justify-center mb-3 hover-icon-glow">
                       <item.icon className="h-4 w-4 text-brand-cyan group-hover:text-white transition-colors" />
                     </div>
@@ -369,12 +464,14 @@ export default function HomePage() {
         </section>
 
         {/* ============ THE LOOP ============ */}
-        <section className="py-24 px-6 bg-secondary/30">
+        <section className="relative py-24 px-6 border-t border-border">
           <div className="max-w-6xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">THE CLOSED LOOP</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  THE CLOSED LOOP
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
                   Update once. Impact everywhere.
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -391,12 +488,14 @@ export default function HomePage() {
         </section>
 
         {/* ============ INDUSTRIES ============ */}
-        <section id="industries" className="py-24 px-6 border-t border-border">
+        <section id="industries" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">BUILT FOR</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  BUILT FOR
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
                   Every project-driven industry
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -415,7 +514,7 @@ export default function HomePage() {
                 { icon: Pickaxe, title: 'Mining & Metals', body: 'Multi-billion dollar capital projects. Chronic delays, budget drift.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card p-5 hover-lift card-glow">
+                  <div className="group glass-card rounded-lg p-5 hover-lift h-full">
                     <div className="h-10 w-10 rounded-md brand-gradient flex items-center justify-center mb-3">
                       <item.icon className="h-5 w-5 text-white" />
                     </div>
@@ -429,26 +528,30 @@ export default function HomePage() {
         </section>
 
         {/* ============ PRICING ============ */}
-        <section id="pricing" className="py-24 px-6 bg-secondary/30">
+        <section id="pricing" className="relative py-24 px-6 border-t border-border">
           <div className="max-w-6xl mx-auto">
             <Reveal>
               <div className="text-center mb-10">
-                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">PRICING</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Simple pricing. Serious ROI.</h2>
+                <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">
+                  PRICING
+                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em] mb-4">
+                  Simple pricing. Serious ROI.
+                </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  All plans include the AI intelligence layer, historical insights, and audit logs.
+                  Every plan includes the AI intelligence layer, historical insights, and audit logs.
                 </p>
               </div>
             </Reveal>
 
             <Reveal>
               <div className="flex justify-center mb-10">
-                <div className="inline-flex items-center rounded-full border border-border bg-card p-1">
+                <div className="inline-flex items-center rounded-full border border-border bg-card p-1 shadow-sm">
                   <button
                     onClick={() => setBillingCycle('monthly')}
                     className={`px-5 py-2 text-xs font-mono tracking-wider rounded-full transition-all ${
                       billingCycle === 'monthly'
-                        ? 'brand-gradient text-white'
+                        ? 'brand-gradient text-white shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -458,7 +561,7 @@ export default function HomePage() {
                     onClick={() => setBillingCycle('yearly')}
                     className={`px-5 py-2 text-xs font-mono tracking-wider rounded-full transition-all flex items-center gap-2 ${
                       billingCycle === 'yearly'
-                        ? 'brand-gradient text-white'
+                        ? 'brand-gradient text-white shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -483,10 +586,10 @@ export default function HomePage() {
                 return (
                   <Reveal key={i} delay={(i * 100) as 0 | 100 | 200}>
                     <div
-                      className={`rounded-xl border p-6 relative hover-lift ${
+                      className={`rounded-xl p-6 relative hover-lift h-full ${
                         tier.highlight
-                          ? 'border-brand-cyan/60 bg-white shadow-xl shadow-brand/10'
-                          : 'border-border bg-card card-glow'
+                          ? 'glass-card border-brand-cyan/50 shadow-xl shadow-brand/15'
+                          : 'glass-card'
                       }`}
                     >
                       {tier.highlight && (
@@ -494,7 +597,7 @@ export default function HomePage() {
                           MOST POPULAR
                         </div>
                       )}
-                      <h3 className="text-lg font-bold mb-1">{tier.name}</h3>
+                      <h3 className="text-lg font-semibold mb-1">{tier.name}</h3>
                       <p className="text-xs text-muted-foreground mb-5">{tier.tagline}</p>
                       <div className="mb-1">
                         <span className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase">
@@ -502,7 +605,7 @@ export default function HomePage() {
                         </span>
                       </div>
                       <div className="mb-1 flex items-baseline gap-2">
-                        <span className="text-4xl font-bold brand-gradient-text">
+                        <span className="text-3xl md:text-4xl font-semibold brand-gradient-text tracking-tight">
                           ${Math.round(price).toLocaleString()}
                         </span>
                         <span className="text-sm text-muted-foreground">/ month</span>
@@ -527,7 +630,7 @@ export default function HomePage() {
                         className={`group block w-full rounded-md px-4 py-2.5 text-sm font-medium text-center transition-all ${
                           tier.highlight
                             ? 'brand-gradient text-white btn-primary'
-                            : 'border border-border hover:bg-accent'
+                            : 'border border-border hover:bg-secondary'
                         }`}
                       >
                         {tier.cta}
@@ -545,12 +648,14 @@ export default function HomePage() {
         </section>
 
         {/* ============ FAQ ============ */}
-        <section id="faq" className="py-24 px-6 border-t border-border">
+        <section id="faq" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
           <div className="max-w-3xl mx-auto">
             <Reveal>
               <div className="text-center mb-12">
                 <div className="text-xs font-mono tracking-widest text-brand-cyan uppercase mb-3">FAQ</div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Common questions</h2>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.025em]">
+                  Common questions
+                </h2>
               </div>
             </Reveal>
 
@@ -566,8 +671,8 @@ export default function HomePage() {
                 { q: 'Which industries do you support?', a: 'Any project-driven industry. We are strongest in EPC and construction, energy and utilities, manufacturing, oil and gas, logistics and infrastructure, and mining.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={0}>
-                  <details className="group rounded-lg border border-border bg-card overflow-hidden hover:border-brand-cyan/30 transition-colors card-glow">
-                    <summary className="cursor-pointer p-4 font-medium text-sm flex items-center justify-between hover:bg-secondary/50 transition-colors list-none">
+                  <details className="group glass-card rounded-lg overflow-hidden hover:border-brand-cyan/30 transition-colors">
+                    <summary className="cursor-pointer p-4 font-medium text-sm flex items-center justify-between hover:bg-secondary/60 transition-colors list-none">
                       {item.q}
                       <ArrowRight className="h-4 w-4 text-muted-foreground group-open:rotate-90 transition-transform shrink-0 ml-2" />
                     </summary>
@@ -580,11 +685,11 @@ export default function HomePage() {
         </section>
 
         {/* ============ FINAL CTA ============ */}
-        <section className="py-24 px-6 bg-secondary/30 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none" />
+        <section className="relative py-24 px-6 border-t border-border overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-cyan/15 rounded-full blur-3xl pointer-events-none animate-orb" />
           <div className="max-w-3xl mx-auto text-center relative">
             <Reveal>
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-5xl font-semibold tracking-[-0.03em] mb-4">
                 Ready to see it in action?
               </h2>
             </Reveal>

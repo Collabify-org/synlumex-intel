@@ -18,7 +18,7 @@ export default function ContactPage() {
     {
       icon: MessageCircle,
       label: 'WhatsApp',
-      value: '+91 93907 85041',
+      value: 'Chat with us on WhatsApp',
       href: WHATSAPP_URL,
       brandBg: 'bg-[#25D366]/10',
       brandBorder: 'border-[#25D366]/30',
@@ -27,7 +27,7 @@ export default function ContactPage() {
     {
       icon: Mail,
       label: 'Email',
-      value: 'abdul@synlumexai.com',
+      value: 'Send us an email',
       href: `mailto:${EMAIL}?subject=SYNLUMEX%20Inquiry`,
       brandBg: 'bg-[#0ea5e9]/10',
       brandBorder: 'border-[#0ea5e9]/30',
@@ -36,7 +36,7 @@ export default function ContactPage() {
     {
       icon: Instagram,
       label: 'Instagram',
-      value: '@abdul.synlumex',
+      value: 'Follow us on Instagram',
       href: INSTAGRAM_URL,
       brandBg: 'bg-gradient-to-br from-[#833AB4]/10 via-[#FD1D1D]/10 to-[#FCAF45]/10',
       brandBorder: 'border-[#E1306C]/30',
@@ -45,7 +45,7 @@ export default function ContactPage() {
     {
       icon: Linkedin,
       label: 'LinkedIn',
-      value: 'Synlumex',
+      value: 'Connect on LinkedIn',
       href: LINKEDIN_URL,
       brandBg: 'bg-[#0A66C2]/10',
       brandBorder: 'border-[#0A66C2]/30',

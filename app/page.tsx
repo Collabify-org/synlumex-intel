@@ -255,7 +255,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="rounded-md border border-brand-cyan/30 bg-card p-4">
                       <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Total Value</div>
-                      <div className="text-2xl font-bold brand-gradient-text mt-2">₹945.20 Cr</div>
+                    <div className="text-2xl font-bold brand-gradient-text mt-2">$11.5M</div>
                     </div>
                     <div className="rounded-md border border-border bg-card p-4">
                       <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">At Risk</div>
@@ -280,7 +280,7 @@ export default function HomePage() {
       {/* ================= LIGHT BODY ================= */}
       <div className="relative bg-light-gradient text-foreground">
         {/* ============ THE 7 FLOWS (where projects bleed) ============ */}
-        <section className="relative py-24 px-6 border-t border-border">
+        <section className="section-glow relative py-24 px-6 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
@@ -373,7 +373,7 @@ export default function HomePage() {
         </section>
 
         {/* ============ WHAT YOU RECOVER (7 savings) ============ */}
-        <section className="relative py-24 px-6">
+        <section className="section-glow relative py-24 px-6 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">

@@ -5,8 +5,9 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutGrid, FolderKanban, AlertTriangle, Banknote,
-  Sparkles, Bell, ScrollText, Settings, ShieldCheck
+  Sparkles, Bell, ScrollText, Settings
 } from 'lucide-react';
+import { Logo } from '@/components/brand/logo';
 import type { Profile } from '@/lib/types';
 
 type Org = {
@@ -44,14 +45,10 @@ export function Sidebar({ profile, org }: Props) {
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card/30 flex flex-col h-screen">
       {/* Brand */}
-      <div className="h-14 flex items-center gap-2 px-4 border-b border-border">
-        <div className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow">
-          <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
-        </div>
-        <div className="flex flex-col leading-none">
-          <span className="text-sm font-bold tracking-tight">SYNLUMEX</span>
-          <span className="text-[10px] font-mono text-muted-foreground tracking-widest">INTEL</span>
-        </div>
+      <div className="h-14 flex items-center px-4 border-b border-border">
+        <Link href="/dashboard" className="group flex items-center" aria-label="SYNLUMEX">
+          <Logo size={28} interactive />
+        </Link>
       </div>
 
       {/* Org nameplate */}
@@ -101,7 +98,6 @@ export function Sidebar({ profile, org }: Props) {
         ))}
       </nav>
 
-      {/* User footer */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3 px-2">
           <div className="h-8 w-8 rounded-full brand-gradient flex items-center justify-center text-xs font-bold text-white">

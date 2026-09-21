@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @layer base {
   :root {
@@ -13,7 +13,6 @@
     --card: 220 26% 10%;
     --card-foreground: 210 40% 98%;
 
-    /* Popover MUST be opaque */
     --popover: 220 30% 9%;
     --popover-foreground: 210 40% 98%;
 
@@ -43,10 +42,22 @@
 
 @layer base {
   * { @apply border-border; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  ::selection {
+    background: hsl(199 89% 48% / 0.3);
+    color: hsl(210 40% 98%);
+  }
+
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
@@ -56,7 +67,102 @@
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(199 89% 40%);
   }
+
+  :focus-visible {
+    outline: 2px solid hsl(199 89% 48%);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
+
+/* ============================================================
+   ANIMATION KEYFRAMES
+   ============================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(199 89% 48% / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 24px 8px hsl(199 89% 48% / 0);
+  }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -1000; }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
 
 @layer utilities {
   .text-mono {
@@ -64,20 +170,31 @@
     font-feature-settings: 'tnum', 'zero';
   }
 
+  /* Card glow */
   .card-glow {
     box-shadow:
       0 0 0 1px hsl(217 33% 14%),
       0 4px 24px -8px rgba(30, 64, 175, 0.25);
   }
 
+  /* Brand glow */
   .brand-glow {
     box-shadow: 0 0 24px -4px rgba(14, 165, 233, 0.4);
   }
 
+  /* Brand gradient background */
   .brand-gradient {
     background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%);
   }
 
+  /* Animated gradient (for special CTAs) */
+  .brand-gradient-animated {
+    background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 50%, #1e40af 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+  }
+
+  /* Brand gradient text */
   .brand-gradient-text {
     background: linear-gradient(135deg, #60a5fa 0%, #22d3ee 100%);
     -webkit-background-clip: text;
@@ -85,10 +202,162 @@
     -webkit-text-fill-color: transparent;
   }
 
+  /* Grid texture for hero backgrounds */
   .bg-grid {
     background-image:
       linear-gradient(to right, hsl(217 33% 14% / 0.3) 1px, transparent 1px),
       linear-gradient(to bottom, hsl(217 33% 14% / 0.3) 1px, transparent 1px);
     background-size: 32px 32px;
+  }
+
+  /* Radial glow for hero */
+  .bg-radial-glow {
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(14, 165, 233, 0.15) 0%,
+      transparent 50%
+    );
+  }
+
+  /* ========== SCROLL REVEAL ========== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-100 { transition-delay: 100ms; }
+  .reveal-delay-200 { transition-delay: 200ms; }
+  .reveal-delay-300 { transition-delay: 300ms; }
+  .reveal-delay-400 { transition-delay: 400ms; }
+  .reveal-delay-500 { transition-delay: 500ms; }
+
+  /* ========== HOVER EFFECTS ========== */
+
+  /* Lift on hover — for cards */
+  .hover-lift {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 300ms ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 40px -12px rgba(14, 165, 233, 0.25),
+      0 0 0 1px hsl(199 89% 48% / 0.3);
+  }
+
+  /* Glow icon on card hover (use with group) */
+  .hover-icon-glow {
+    transition: transform 300ms ease, background 300ms ease;
+  }
+  .group:hover .hover-icon-glow {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%);
+  }
+
+  /* Arrow slide on button hover */
+  .btn-arrow {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .group:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Button scale + glow */
+  .btn-primary {
+    transition: transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -8px rgba(14, 165, 233, 0.6);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Subtle floating animation */
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Slow rotation for Loop diagram */
+  .animate-rotate-slow {
+    animation: rotateSlow 30s linear infinite;
+  }
+  .animate-rotate-reverse {
+    animation: rotateReverse 40s linear infinite;
+  }
+
+  /* Pulse glow for live dot */
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  /* SVG line drawing animation */
+  .animate-draw-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 2s ease-out forwards;
+  }
+
+  /* Dashed line moving (for connection lines) */
+  .animate-dash {
+    stroke-dasharray: 8 8;
+    animation: dash 20s linear infinite;
+  }
+
+  /* Number counter pulse when counting */
+  .counter-pulse {
+    animation: pulse 400ms ease-in-out;
+  }
+
+  /* ========== FLOATING CONTACT WIDGET ========== */
+  .contact-fab {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 300ms ease;
+  }
+  .contact-fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 32px -8px rgba(14, 165, 233, 0.7);
+  }
+
+  .contact-option {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 300ms ease;
+  }
+
+  /* ========== FAQ ACCORDION ========== */
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+  details[open] summary ~ * {
+    animation: fadeIn 300ms ease;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION — accessibility
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { shortDate } from '@/lib/format';
 import { ShieldCheck, Building2, Users, CreditCard, Crown, LogOut } from 'lucide-react';
+import { Logo } from '@/components/brand/logo';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,15 +78,10 @@ export default async function AdminPage() {
       {/* Sticky admin topbar */}
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 flex items-center px-6">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg flex items-center justify-center brand-gradient brand-glow">
-            <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2.5} />
-          </div>
-          <div>
-            <div className="text-sm font-bold tracking-tight">SYNLUMEX ADMIN</div>
-            <div className="text-[10px] font-mono text-muted-foreground">
-              Super Admin Console
-            </div>
-          </div>
+          <Logo size={28} interactive />
+          <div className="text-xs font-mono tracking-widest text-muted-foreground uppercase">
+            Admin
+        </div>
         </div>
         <div className="ml-auto flex items-center gap-4">
           <span className="text-xs text-muted-foreground font-mono">

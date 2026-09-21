@@ -7,7 +7,7 @@ import {
   ArrowRight, Check, Zap, Target, TrendingUp, Users,
   Factory, Truck, MessageCircle, Play,
   BarChart3, Lock, Clock, Brain, Droplet, Pickaxe, HardHat,
-  TrendingDown, CalendarClock, FileX, ShieldAlert, UserMinus, Database
+  TrendingDown, CalendarClock, FileX, ShieldAlert, UserMinus, Database,
   Mail, Instagram, Linkedin
 } from 'lucide-react';
 import { ContactFab } from '@/components/marketing/contact-fab';

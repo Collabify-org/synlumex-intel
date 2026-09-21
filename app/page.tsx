@@ -7,8 +7,9 @@ import {
   Building2, HardHat, Factory, Truck, MessageCircle, Play,
   BarChart3, Lock, Clock, Brain
 } from 'lucide-react';
+import { ContactFab } from '@/components/marketing/contact-fab';
 
-const WHATSAPP_URL = 'https://wa.me/919999999999?text=Hi%2C%20I%27d%20like%20a%20SYNLUMEX%20demo';
+const WHATSAPP_URL = 'https://wa.me/919390785041?text=Hi%2C%20I%27d%20like%20a%20SYNLUMEX%20demo';
 
 export default function HomePage() {
   return (
@@ -493,6 +494,9 @@ export default function HomePage() {
           </div>
         </footer>
       </div>
+      
+      {/* Floating Contact Widget */}
+      <ContactFab />
     </>
   );
 }

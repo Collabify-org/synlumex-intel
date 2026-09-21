@@ -17,6 +17,9 @@ import { AnimatedCounter } from '@/components/marketing/animated-counter';
 import { LoopDiagram } from '@/components/marketing/loop-diagram';
 
 const WHATSAPP_URL = 'https://wa.me/919390785041?text=Hi%2C%20I%27d%20like%20a%20SYNLUMEX%20demo';
+const EMAIL = 'abdul@synlumexai.com';
+const INSTAGRAM_URL = 'https://www.instagram.com/abdul.synlumex/';
+const LINKEDIN_URL = 'https://www.linkedin.com/company/synlumex/?viewAsMember=true';
 
 export default function HomePage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -100,17 +103,15 @@ export default function HomePage() {
 
       {/* ================= DARK HERO ================= */}
       <div className="dark-hero relative bg-background text-foreground overflow-hidden">
-        {/* Background layers */}
         <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
         <div className="absolute inset-0 bg-grid-subtle pointer-events-none opacity-60" />
         <div className="absolute inset-0 bg-noise pointer-events-none" />
 
-        {/* Floating orbs */}
         <div className="orb orb-cobalt animate-orb" style={{ width: 500, height: 500, top: -100, left: -100, opacity: 0.35 }} />
         <div className="orb orb-cyan animate-orb" style={{ width: 400, height: 400, top: 100, right: -120, opacity: 0.28, animationDelay: '-5s' }} />
         <div className="orb orb-glow animate-orb" style={{ width: 300, height: 300, bottom: 100, left: '30%', opacity: 0.18, animationDelay: '-10s' }} />
 
-        {/* ============ NAVBAR ============ */}
+        {/* NAVBAR */}
         <nav className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/70 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
             <Link href="/" className="group flex items-center" aria-label="SYNLUMEX home">
@@ -143,7 +144,7 @@ export default function HomePage() {
 
         <div className="h-16" />
 
-        {/* ============ HERO ============ */}
+        {/* HERO */}
         <section className="relative pt-20 pb-24 px-6">
           <div className="max-w-7xl mx-auto text-center relative">
             <Reveal>
@@ -190,7 +191,6 @@ export default function HomePage() {
               </div>
             </Reveal>
 
-            {/* 7 Metric Cards */}
             <Reveal delay={400}>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 max-w-6xl mx-auto mb-12">
                 {[
@@ -230,7 +230,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ SCREENSHOT ============ */}
+        {/* SCREENSHOT */}
         <section id="screenshot" className="relative pb-24 px-6">
           <div className="max-w-6xl mx-auto">
             <Reveal>
@@ -256,7 +256,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="rounded-md border border-brand-cyan/30 bg-card p-4">
                       <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Total Value</div>
-                    <div className="text-2xl font-bold brand-gradient-text mt-2">$11.5M</div>
+                      <div className="text-2xl font-bold brand-gradient-text mt-2">$11.5M</div>
                     </div>
                     <div className="rounded-md border border-border bg-card p-4">
                       <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">At Risk</div>
@@ -280,7 +280,7 @@ export default function HomePage() {
 
       {/* ================= LIGHT BODY ================= */}
       <div className="relative bg-light-gradient text-foreground">
-        {/* ============ THE 7 FLOWS (where projects bleed) ============ */}
+        {/* THE 7 FLOWS */}
         <section className="section-glow relative py-24 px-6 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
@@ -299,7 +299,7 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { icon: Banknote, title: 'Cash flow vs. progress', pain: 'Progress isn\'t linear, but cash outflow is. Payment delays cascade into demobilization.', cost: '15-30 days of stuck working capital' },
+                { icon: Banknote, title: 'Cash flow vs. progress', pain: "Progress isn't linear, but cash outflow is. Payment delays cascade into demobilization.", cost: '15-30 days of stuck working capital' },
                 { icon: AlertTriangle, title: 'Design changes cascade', pain: 'Client changes ripple through schedule, procurement, and labour.', cost: 'Avg 10-20% cost overrun per change' },
                 { icon: TrendingDown, title: 'Procurement delays compound', pain: 'Late awards push mobilization, push site work, push delivery.', cost: 'Weeks of catch-up avoided' },
                 { icon: Users, title: 'Labour shortage stretches timelines', pain: 'Labour strength drops 30% during disruptions. Projects stall.', cost: '3-6 months of delay per event' },
@@ -328,7 +328,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ SOLUTION (3 strategic pillars) ============ */}
+        {/* SOLUTION */}
         <section className="relative py-24 px-6 bg-secondary/40">
           <div className="max-w-7xl mx-auto">
             <Reveal>
@@ -373,8 +373,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ WHAT YOU RECOVER (7 savings) ============ */}
-        <section className="section-glow relative py-24 px-6 border-t border-border">
+        {/* SAVINGS */}
+        <section className="section-glow relative py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
@@ -392,19 +392,19 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { icon: Banknote, title: 'Unbilled revenue recovered', value: '$40K-80K', unit: 'per project clawed back', tone: 'emerald' },
-                { icon: TrendingUp, title: 'Margin preserved', value: '5-15%', unit: 'of contract value not lost', tone: 'emerald' },
-                { icon: AlertTriangle, title: 'Overruns caught early', value: '3%', unit: 'deviation flagged, not 30%', tone: 'emerald' },
-                { icon: Clock, title: 'Handoff delays cut', value: '40-60%', unit: 'faster approval cycles', tone: 'emerald' },
-                { icon: ShieldAlert, title: 'Compliance fines avoided', value: '$15K-40K', unit: 'per breach prevented', tone: 'emerald' },
-                { icon: UserMinus, title: 'PM dependency removed', value: '100%', unit: 'workflows documented', tone: 'emerald' },
-                { icon: Database, title: 'Data trusted again', value: '1 source', unit: 'of truth every team uses', tone: 'emerald' }
+                { icon: Banknote, title: 'Unbilled revenue recovered', value: '$40K-80K', unit: 'per project clawed back' },
+                { icon: TrendingUp, title: 'Margin preserved', value: '5-15%', unit: 'of contract value not lost' },
+                { icon: AlertTriangle, title: 'Overruns caught early', value: '3%', unit: 'deviation flagged, not 30%' },
+                { icon: Clock, title: 'Handoff delays cut', value: '40-60%', unit: 'faster approval cycles' },
+                { icon: ShieldAlert, title: 'Compliance fines avoided', value: '$15K-40K', unit: 'per breach prevented' },
+                { icon: UserMinus, title: 'PM dependency removed', value: '100%', unit: 'workflows documented' },
+                { icon: Database, title: 'Data trusted again', value: '1 source', unit: 'of truth every team uses' }
               ].map((item, i) => (
                 <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
                   <div className="group glass-card rounded-lg p-6 hover-lift h-full">
                     <div className="flex items-start gap-4 mb-3">
-                      <div className="h-10 w-10 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:hover-icon-glow transition-all">
-                        <item.icon className="h-5 w-5 text-emerald-600" />
+                      <div className="h-10 w-10 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 hover-icon-glow">
+                        <item.icon className="h-5 w-5 text-emerald-600 group-hover:text-white transition-colors" />
                       </div>
                       <div className="min-w-0">
                         <h3 className="font-semibold text-sm leading-snug">{item.title}</h3>
@@ -421,7 +421,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ CAPABILITIES ============ */}
+        {/* CAPABILITIES */}
         <section id="features" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
@@ -464,7 +464,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ THE LOOP ============ */}
+        {/* THE LOOP */}
         <section className="relative py-24 px-6 border-t border-border">
           <div className="max-w-6xl mx-auto">
             <Reveal>
@@ -488,7 +488,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ INDUSTRIES ============ */}
+        {/* INDUSTRIES */}
         <section id="industries" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
           <div className="max-w-7xl mx-auto">
             <Reveal>
@@ -528,7 +528,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ PRICING ============ */}
+        {/* PRICING */}
         <section id="pricing" className="relative py-24 px-6 border-t border-border">
           <div className="max-w-6xl mx-auto">
             <Reveal>
@@ -648,7 +648,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ FAQ ============ */}
+        {/* FAQ */}
         <section id="faq" className="relative py-24 px-6 bg-secondary/40 border-t border-border">
           <div className="max-w-3xl mx-auto">
             <Reveal>
@@ -685,7 +685,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ FINAL CTA ============ */}
+        {/* FINAL CTA */}
         <section className="relative py-24 px-6 border-t border-border overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-cyan/15 rounded-full blur-3xl pointer-events-none animate-orb" />
           <div className="max-w-3xl mx-auto text-center relative">
@@ -709,8 +709,8 @@ export default function HomePage() {
                 >
                   <MessageCircle className="h-4 w-4" /> WhatsApp us now
                 </a>
-                                <a
-                  href="mailto:abdul@synlumexai.com?subject=SYNLUMEX%20Inquiry"
+                <a
+                  href={`mailto:${EMAIL}?subject=SYNLUMEX%20Inquiry`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-secondary transition-colors flex items-center gap-2"
@@ -722,7 +722,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ FOOTER ============ */}
+        {/* FOOTER */}
         <footer className="border-t border-border py-12 px-6 bg-background">
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-8">
@@ -752,10 +752,12 @@ export default function HomePage() {
                   <li><Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link></li>
                   <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy</Link></li>
                   <li><Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms</Link></li>
+                  <li><Link href="/refund" className="text-muted-foreground hover:text-foreground transition-colors">Refund</Link></li>
+                  <li><Link href="/disclaimer" className="text-muted-foreground hover:text-foreground transition-colors">Disclaimer</Link></li>
                 </ul>
               </div>
 
-                            <div>
+              <div>
                 <div className="text-xs font-mono tracking-widest text-muted-foreground uppercase mb-3">Contact</div>
                 <ul className="space-y-2.5 text-sm">
                   <li>
@@ -770,7 +772,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <a
-                      href="mailto:abdul@synlumexai.com?subject=SYNLUMEX%20Inquiry"
+                      href={`mailto:${EMAIL}?subject=SYNLUMEX%20Inquiry`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
@@ -780,7 +782,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <a
-                      href="https://www.instagram.com/abdul.synlumex/"
+                      href={INSTAGRAM_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
@@ -790,7 +792,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <a
-                      href="https://www.linkedin.com/company/synlumex/?viewAsMember=true"
+                      href={LINKEDIN_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
@@ -800,6 +802,7 @@ export default function HomePage() {
                   </li>
                 </ul>
               </div>
+            </div>
 
             <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground font-mono">© 2026 SYNLUMEX</div>

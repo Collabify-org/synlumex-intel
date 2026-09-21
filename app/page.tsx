@@ -8,6 +8,7 @@ import {
   Factory, Truck, MessageCircle, Play,
   BarChart3, Lock, Clock, Brain, Droplet, Pickaxe, HardHat,
   TrendingDown, CalendarClock, FileX, ShieldAlert, UserMinus, Database
+  Mail, Instagram, Linkedin
 } from 'lucide-react';
 import { ContactFab } from '@/components/marketing/contact-fab';
 import { Logo } from '@/components/brand/logo';
@@ -708,11 +709,13 @@ export default function HomePage() {
                 >
                   <MessageCircle className="h-4 w-4" /> WhatsApp us now
                 </a>
-                <a
-                  href="mailto:abdul@synlumexai.com"
-                  className="rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-secondary transition-colors"
+                                <a
+                  href="mailto:abdul@synlumexai.com?subject=SYNLUMEX%20Inquiry"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-secondary transition-colors flex items-center gap-2"
                 >
-                  abdul@synlumexai.com
+                  <Mail className="h-4 w-4" /> Email us
                 </a>
               </div>
             </Reveal>
@@ -752,9 +755,9 @@ export default function HomePage() {
                 </ul>
               </div>
 
-              <div>
+                            <div>
                 <div className="text-xs font-mono tracking-widest text-muted-foreground uppercase mb-3">Contact</div>
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-2.5 text-sm">
                   <li>
                     <a
                       href={WHATSAPP_URL}
@@ -766,13 +769,37 @@ export default function HomePage() {
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:abdul@synlumexai.com" className="text-muted-foreground hover:text-foreground transition-colors">
-                      abdul@synlumexai.com
+                    <a
+                      href="mailto:abdul@synlumexai.com?subject=SYNLUMEX%20Inquiry"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <Mail className="h-3.5 w-3.5" /> Email
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.instagram.com/abdul.synlumex/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <Instagram className="h-3.5 w-3.5" /> Instagram
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.linkedin.com/company/synlumex/?viewAsMember=true"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <Linkedin className="h-3.5 w-3.5" /> LinkedIn
                     </a>
                   </li>
                 </ul>
               </div>
-            </div>
 
             <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground font-mono">© 2026 SYNLUMEX</div>

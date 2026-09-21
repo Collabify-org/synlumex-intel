@@ -51,7 +51,6 @@ export default function HomePage() {
 
   return (
     <>
-      {/* SEO: JSON-LD structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -72,7 +71,8 @@ export default function HomePage() {
         }}
       />
 
-      <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      {/* ================= DARK HERO WRAPPER ================= */}
+      <div className="dark-hero bg-background text-foreground">
         {/* ============ NAVBAR ============ */}
         <nav className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-lg">
           <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
@@ -121,14 +121,14 @@ export default function HomePage() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 max-w-5xl mx-auto">
                 Manage projects, money, and compliance in one place.
                 <br />
-                <span className="brand-gradient-text">You don't lose on the project. You lose on what happens between stages.</span>
+                <span className="brand-gradient-text">You don&apos;t lose on the project. You lose on what happens between stages.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={200}>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
                 Run projects, track money, close the gaps. Extra spend. Silent overruns.
-                Unbilled work. All invisible until it's too late.
+                Unbilled work. All invisible until it&apos;s too late.
               </p>
             </Reveal>
 
@@ -145,14 +145,13 @@ export default function HomePage() {
                 </a>
                 <a
                   href="#screenshot"
-                  className="group rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
+                  className="group rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-accent/10 transition-colors flex items-center gap-2"
                 >
                   <Play className="h-4 w-4" /> See it in action
                 </a>
               </div>
             </Reveal>
 
-            {/* Metrics bar with counters */}
             <Reveal delay={400}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-12">
                 <div className="rounded-lg border border-border bg-card/50 p-4">
@@ -201,7 +200,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ SCREENSHOT ============ */}
+        {/* ============ SCREENSHOT — still dark ============ */}
         <section id="screenshot" className="pb-24 px-6">
           <div className="max-w-6xl mx-auto">
             <Reveal>
@@ -247,7 +246,10 @@ export default function HomePage() {
             </Reveal>
           </div>
         </section>
+      </div>
 
+      {/* ================= LIGHT BODY BELOW ================= */}
+      <div className="bg-background text-foreground">
         {/* ============ PROBLEM ============ */}
         <section className="py-24 px-6 border-t border-border">
           <div className="max-w-7xl mx-auto">
@@ -271,7 +273,7 @@ export default function HomePage() {
                 { icon: Brain, title: 'Knowledge walks away', body: 'When your best project manager leaves, the process leaves with them. Six months later, you repeat the same mistakes.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={(i * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card/50 p-6 hover-lift">
+                  <div className="group rounded-lg border border-border bg-card p-6 hover-lift card-glow">
                     <div className="h-10 w-10 rounded-md bg-destructive/10 border border-destructive/30 flex items-center justify-center mb-4">
                       <item.icon className="h-5 w-5 text-destructive" />
                     </div>
@@ -285,7 +287,7 @@ export default function HomePage() {
         </section>
 
         {/* ============ SOLUTION ============ */}
-        <section className="py-24 px-6 bg-gradient-to-b from-background to-card/30">
+        <section className="py-24 px-6 bg-secondary/30">
           <div className="max-w-7xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
@@ -303,8 +305,8 @@ export default function HomePage() {
                 { icon: Sparkles, step: '03', title: 'Intelligence Layer', body: 'Every mutation triggers recompute. Exceptions auto-created. Historical patterns compound. The system gets smarter over time.', features: ['Auto-flagged exceptions', 'AI risk analysis', 'Historical intelligence'] }
               ].map((item, i) => (
                 <Reveal key={i} delay={(i * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card/50 p-6 relative overflow-hidden hover-lift">
-                    <div className="absolute top-4 right-4 text-6xl font-bold text-muted/20 font-mono">{item.step}</div>
+                  <div className="group rounded-lg border border-border bg-card p-6 relative overflow-hidden hover-lift card-glow">
+                    <div className="absolute top-4 right-4 text-6xl font-bold text-muted/30 font-mono">{item.step}</div>
                     <div className="h-10 w-10 rounded-md brand-gradient flex items-center justify-center mb-4">
                       <item.icon className="h-5 w-5 text-white" />
                     </div>
@@ -353,7 +355,7 @@ export default function HomePage() {
                 { icon: Lock, title: 'Audit Trail', body: 'Every mutation logged. Every action provable. Every change tracked.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card/50 p-5 hover-lift">
+                  <div className="group rounded-lg border border-border bg-card p-5 hover-lift card-glow">
                     <div className="h-9 w-9 rounded-md bg-brand/10 border border-brand/30 flex items-center justify-center mb-3 hover-icon-glow">
                       <item.icon className="h-4 w-4 text-brand-cyan group-hover:text-white transition-colors" />
                     </div>
@@ -366,8 +368,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============ THE LOOP (Circular Diagram) ============ */}
-        <section className="py-24 px-6 bg-card/30 border-t border-border">
+        {/* ============ THE LOOP ============ */}
+        <section className="py-24 px-6 bg-secondary/30">
           <div className="max-w-6xl mx-auto">
             <Reveal>
               <div className="text-center mb-16">
@@ -413,7 +415,7 @@ export default function HomePage() {
                 { icon: Pickaxe, title: 'Mining & Metals', body: 'Multi-billion dollar capital projects. Chronic delays, budget drift.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={((i % 3) * 100) as 0 | 100 | 200}>
-                  <div className="group rounded-lg border border-border bg-card/50 p-5 hover-lift">
+                  <div className="group rounded-lg border border-border bg-card p-5 hover-lift card-glow">
                     <div className="h-10 w-10 rounded-md brand-gradient flex items-center justify-center mb-3">
                       <item.icon className="h-5 w-5 text-white" />
                     </div>
@@ -427,7 +429,7 @@ export default function HomePage() {
         </section>
 
         {/* ============ PRICING ============ */}
-        <section id="pricing" className="py-24 px-6 bg-card/30 border-t border-border">
+        <section id="pricing" className="py-24 px-6 bg-secondary/30">
           <div className="max-w-6xl mx-auto">
             <Reveal>
               <div className="text-center mb-10">
@@ -439,7 +441,6 @@ export default function HomePage() {
               </div>
             </Reveal>
 
-            {/* Billing toggle */}
             <Reveal>
               <div className="flex justify-center mb-10">
                 <div className="inline-flex items-center rounded-full border border-border bg-card p-1">
@@ -466,7 +467,7 @@ export default function HomePage() {
                       className={`text-[10px] px-1.5 py-0.5 rounded ${
                         billingCycle === 'yearly'
                           ? 'bg-white/20 text-white'
-                          : 'bg-emerald-500/10 text-emerald-400'
+                          : 'bg-emerald-500/10 text-emerald-600'
                       }`}
                     >
                       SAVE 17%
@@ -484,8 +485,8 @@ export default function HomePage() {
                     <div
                       className={`rounded-xl border p-6 relative hover-lift ${
                         tier.highlight
-                          ? 'border-brand-cyan/50 bg-gradient-to-br from-brand/10 to-transparent'
-                          : 'border-border bg-card/50'
+                          ? 'border-brand-cyan/60 bg-white shadow-xl shadow-brand/10'
+                          : 'border-border bg-card card-glow'
                       }`}
                     >
                       {tier.highlight && (
@@ -565,8 +566,8 @@ export default function HomePage() {
                 { q: 'Which industries do you support?', a: 'Any project-driven industry. We are strongest in EPC and construction, energy and utilities, manufacturing, oil and gas, logistics and infrastructure, and mining.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={0}>
-                  <details className="group rounded-lg border border-border bg-card/50 overflow-hidden hover:border-brand-cyan/30 transition-colors">
-                    <summary className="cursor-pointer p-4 font-medium text-sm flex items-center justify-between hover:bg-accent/30 transition-colors list-none">
+                  <details className="group rounded-lg border border-border bg-card overflow-hidden hover:border-brand-cyan/30 transition-colors card-glow">
+                    <summary className="cursor-pointer p-4 font-medium text-sm flex items-center justify-between hover:bg-secondary/50 transition-colors list-none">
                       {item.q}
                       <ArrowRight className="h-4 w-4 text-muted-foreground group-open:rotate-90 transition-transform shrink-0 ml-2" />
                     </summary>
@@ -579,8 +580,8 @@ export default function HomePage() {
         </section>
 
         {/* ============ FINAL CTA ============ */}
-        <section className="py-24 px-6 border-t border-border relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-cyan/20 rounded-full blur-3xl pointer-events-none" />
+        <section className="py-24 px-6 bg-secondary/30 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-3xl mx-auto text-center relative">
             <Reveal>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
@@ -604,7 +605,7 @@ export default function HomePage() {
                 </a>
                 <a
                   href="mailto:abdul@synlumexai.com"
-                  className="rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
+                  className="rounded-md border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-secondary transition-colors"
                 >
                   abdul@synlumexai.com
                 </a>
@@ -614,7 +615,7 @@ export default function HomePage() {
         </section>
 
         {/* ============ FOOTER ============ */}
-        <footer className="border-t border-border py-12 px-6">
+        <footer className="border-t border-border py-12 px-6 bg-background">
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-8">
               <div>
@@ -671,7 +672,7 @@ export default function HomePage() {
             <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground font-mono">© 2026 SYNLUMEX</div>
               <div className="text-xs text-muted-foreground font-mono flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 All systems operational
               </div>
             </div>
@@ -679,7 +680,6 @@ export default function HomePage() {
         </footer>
       </div>
 
-      {/* Floating Contact Widget */}
       <ContactFab />
     </>
   );

@@ -18,18 +18,44 @@ export function LoopDiagram() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.unobserve(entry.target);
+          observer.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.15 }
     );
+
     observer.observe(el);
-    return () => observer.disconnect();
+
+    const safetyTimeout = setTimeout(() => setVisible(true), 2000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(safetyTimeout);
+    };
   }, []);
+
+  // Circle geometry: 5 nodes at 72° intervals, starting at top (-90°)
+  const SIZE = 400;
+  const CENTER = SIZE / 2;
+  const RADIUS = 140;
+  const nodes = STEPS.map((step, i) => {
+    const angle = (i * 72 - 90) * (Math.PI / 180);
+    return {
+      ...step,
+      x: CENTER + RADIUS * Math.cos(angle),
+      y: CENTER + RADIUS * Math.sin(angle)
+    };
+  });
 
   return (
     <div ref={ref} className="w-full flex flex-col lg:flex-row items-center justify-center gap-12">
@@ -37,35 +63,36 @@ export function LoopDiagram() {
       <div className="relative w-[340px] h-[340px] sm:w-[420px] sm:h-[420px] shrink-0">
         {/* Rotating background rings */}
         <svg
-          viewBox="0 0 400 400"
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
           className={`absolute inset-0 w-full h-full ${visible ? 'animate-rotate-slow' : ''}`}
         >
           <circle
-            cx="200"
-            cy="200"
-            r="160"
+            cx={CENTER}
+            cy={CENTER}
+            r={185}
             fill="none"
             stroke="hsl(199 89% 48% / 0.15)"
             strokeWidth="1"
-            strokeDasharray="4 8"
+            strokeDasharray="3 10"
           />
         </svg>
+
         <svg
-          viewBox="0 0 400 400"
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
           className={`absolute inset-0 w-full h-full ${visible ? 'animate-rotate-reverse' : ''}`}
         >
           <circle
-            cx="200"
-            cy="200"
-            r="140"
+            cx={CENTER}
+            cy={CENTER}
+            r={165}
             fill="none"
-            stroke="hsl(199 89% 48% / 0.1)"
+            stroke="hsl(199 89% 48% / 0.08)"
             strokeWidth="1"
           />
         </svg>
 
-        {/* Main connector circle */}
-        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full">
+        {/* Main SVG diagram */}
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 w-full h-full">
           <defs>
             <linearGradient id="loopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#1e40af" />
@@ -73,89 +100,112 @@ export function LoopDiagram() {
             </linearGradient>
           </defs>
 
-          {/* Outer connector ring */}
+          {/* Main connecting ring */}
           <circle
-            cx="200"
-            cy="200"
-            r="120"
+            cx={CENTER}
+            cy={CENTER}
+            r={RADIUS}
             fill="none"
             stroke="url(#loopGrad)"
             strokeWidth="2"
             strokeLinecap="round"
-            strokeDasharray="754"
-            strokeDashoffset={visible ? 0 : 754}
+            strokeDasharray="879.6"
+            strokeDashoffset={visible ? 0 : 879.6}
             style={{
               transition: 'stroke-dashoffset 2000ms cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           />
 
-          {/* Inner pulsing ring */}
-          <circle
-            cx="200"
-            cy="200"
-            r="120"
-            fill="none"
-            stroke="hsl(199 89% 48% / 0.3)"
-            strokeWidth="8"
-            opacity={visible ? 0.4 : 0}
-            style={{ transition: 'opacity 1500ms ease 1000ms' }}
-          >
-            {visible && (
+          {/* Pulse ring */}
+          {visible && (
+            <circle
+              cx={CENTER}
+              cy={CENTER}
+              r={RADIUS}
+              fill="none"
+              stroke="hsl(199 89% 48% / 0.4)"
+              strokeWidth="2"
+            >
               <animate
                 attributeName="r"
-                values="120;135;120"
-                dur="4s"
+                values={`${RADIUS};${RADIUS + 12};${RADIUS}`}
+                dur="3s"
                 repeatCount="indefinite"
-              />
-            )}
-          </circle>
-
-          {/* Traveling dot on the ring */}
-          {visible && (
-            <circle r="6" fill="#22d3ee">
-              <animateMotion
-                dur="8s"
-                repeatCount="indefinite"
-                path="M 200,80 A 120,120 0 1,1 199,80 Z"
               />
               <animate
                 attributeName="opacity"
-                values="1;0.4;1"
-                dur="1.5s"
+                values="0.4;0;0.4"
+                dur="3s"
                 repeatCount="indefinite"
               />
             </circle>
           )}
+
+          {/* Traveling dot */}
+          {visible && (
+            <g style={{ transformOrigin: `${CENTER}px ${CENTER}px` }}>
+              <circle cx={CENTER + RADIUS} cy={CENTER} r="5" fill="#22d3ee">
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from={`0 ${CENTER} ${CENTER}`}
+                  to={`360 ${CENTER} ${CENTER}`}
+                  dur="8s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </g>
+          )}
+
+          {/* Small connector ticks at each node */}
+          {nodes.map((node, i) => (
+            <circle
+              key={i}
+              cx={node.x}
+              cy={node.y}
+              r="3"
+              fill="hsl(199 89% 48%)"
+              opacity={visible ? 0.6 : 0}
+              style={{
+                transition: `opacity 500ms ease ${i * 120 + 400}ms`
+              }}
+            />
+          ))}
         </svg>
 
         {/* Center brand mark */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-20 w-20 rounded-2xl brand-gradient brand-glow flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div
+            className="h-20 w-20 rounded-2xl brand-gradient brand-glow flex items-center justify-center"
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'scale(1)' : 'scale(0.6)',
+              transition: 'opacity 600ms ease 300ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms'
+            }}
+          >
             <span className="text-2xl font-bold text-white tracking-tight">S</span>
           </div>
         </div>
 
-        {/* 5 Node buttons around the circle */}
-        {STEPS.map((step, i) => {
-          const angle = (i * 72 - 90) * (Math.PI / 180);
-          const radius = 120;
-          const x = 50 + (radius / 200) * 50 * Math.cos(angle);
-          const y = 50 + (radius / 200) * 50 * Math.sin(angle);
+        {/* 5 Icon nodes rendered as absolute-positioned HTML for better touch/hover */}
+        {nodes.map((node, i) => {
+          const xPct = (node.x / SIZE) * 100;
+          const yPct = (node.y / SIZE) * 100;
           return (
             <div
-              key={step.id}
-              className="absolute h-12 w-12 rounded-full border-2 border-brand-cyan/50 bg-card flex items-center justify-center shadow-lg hover:scale-110 hover:border-brand-cyan transition-transform duration-300 group cursor-default"
+              key={node.id}
+              className="absolute h-11 w-11 rounded-full border-2 border-brand-cyan/50 bg-card flex items-center justify-center shadow-lg hover:scale-110 hover:border-brand-cyan transition-transform duration-300 group cursor-default"
               style={{
-                left: `${x}%`,
-                top: `${y}%`,
+                left: `${xPct}%`,
+                top: `${yPct}%`,
                 transform: 'translate(-50%, -50%)',
                 opacity: visible ? 1 : 0,
                 transition: `opacity 500ms ease ${i * 120 + 400}ms, transform 300ms ease`
               }}
             >
-              <step.icon className="h-5 w-5 text-brand-cyan" />
+              <node.icon className="h-5 w-5 text-brand-cyan" />
               <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-popover px-3 py-1 text-[10px] font-mono tracking-wider text-foreground opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                {step.id}. {step.label}
+                {node.id}. {node.label}
               </div>
             </div>
           );
